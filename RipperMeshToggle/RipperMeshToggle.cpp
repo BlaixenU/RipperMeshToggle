@@ -40,6 +40,7 @@ int targetBody;
 float resizeFactor;
 
 bool resetSize;
+float resetSizeRate;
 
 bool IncludeHair;
 bool IncludeSheath;
