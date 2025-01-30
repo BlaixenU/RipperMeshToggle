@@ -1,3 +1,5 @@
+#pragma once
+
 extern void mainInit();
 extern void ripperInit();
 extern void ripperTick();
@@ -28,7 +30,7 @@ extern int UniqueWeaponIndex[];
 
 extern bool ripperSwitch;
 extern bool hasInitialized;
-extern int i;
+// extern int i;
 extern int num;
 extern bool check;
 extern int bodyModelIndex;
