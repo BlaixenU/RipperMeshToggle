@@ -9,13 +9,12 @@
 
 bool debugMode = false;
 
-void swapbool() {
-	if (check) {
+void swapbool() 
+{
+	if (check) 
 		check = false;
-	}
-	else {
+	else
 		check = true;
-	}
 }
 
 class Plugin
@@ -36,18 +35,24 @@ public:
 		InitGUI();
 
 		// and here's your code
-		Events::OnSceneStartupEvent += ripperReinit;
-		Events::OnSceneStartupEvent += swapbool;
+		Events::OnSceneStartupEvent.after += []()
+			{
+				ripperReinit();
+				swapbool(); // why	
+			};
+		
 		Events::OnApplicationStartEvent += mainInit;
-		Events::OnUpdateEvent += ripperTick;
+		// Events::OnUpdateEvent += ripperTick; // We don't have to update it in the main update
+		Events::OnTickEvent += ripperTick;
 	}
 } plugin;
 
 
 void gui::RenderWindow()
 {
-	if (debugMode) {
-		ImGui::Begin("Values");
+	if (debugMode) 
+	{
+		ImGui::Begin("Values"); // Checking all values *huh*?
 
 		ImGui::Value("targetBody", targetBody);
 		ImGui::Value("IncludeHair", IncludeHair);
@@ -66,7 +71,7 @@ void gui::RenderWindow()
 		ImGui::Value("UniqueWeaponIndex", UniqueWeaponIndex);
 		ImGui::Value("ripperSwitch", ripperSwitch);
 		ImGui::Value("hasInitialized", hasInitialized);
-		ImGui::Value("i", i);
+		// ImGui::Value("i", i);
 		ImGui::Value("num", num);
 		ImGui::Value("check", check);
 		ImGui::Value("bodyModelIndex", bodyModelIndex);
@@ -74,9 +79,6 @@ void gui::RenderWindow()
 		ImGui::Value("resizeFactor", resizeFactor);
 		ImGui::Value("resizeFactorEase", resizeFactorEase);
 
-
-
 		ImGui::End();
 	}
-	
 }

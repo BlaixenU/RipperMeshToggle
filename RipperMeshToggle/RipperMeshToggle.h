@@ -1,3 +1,5 @@
+#pragma once
+
 extern void mainInit();
 extern void ripperInit();
 extern void ripperTick();
