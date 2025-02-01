@@ -57,6 +57,9 @@
     <ClInclude Include="RipperMeshToggle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -92,5 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="RipperMeshToggle.ini" />
+    <None Include="RipperMeshToggle.json" />
   </ItemGroup>
 </Project>

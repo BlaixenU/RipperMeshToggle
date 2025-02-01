@@ -1,0 +1,26 @@
+{
+  "Body0": {
+    "ModelIndex": 65552,
+    "RipperSize": 1.25,
+    "ResetSizeInQTE": true,
+
+    "Include": {
+      "Hair": true,
+      "Sheath": false,
+      "Visor": true,
+      "Head": true,
+      "MainWeapon": false,
+      "UniqueWeapon": false
+    },
+
+    "Hide": {
+      "Hair": true,
+      "Sheath": false,
+      "Visor": true,
+      "Head": true
+    },
+
+    "MainWeaponIndex": [],
+    "UniqueWeaponIndex": []
+  }
+}

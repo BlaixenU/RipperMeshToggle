@@ -33,34 +33,36 @@
 #include <format>
 #include <Entity.h>
 #include "IniReader.h"
+#include "json.hpp"
+#include <algorithm>
+#include <vector>
+using json = nlohmann::json;
 
-// ini allocations
+// json allocations
 
-int targetBody;
-float resizeFactor;
+int targetBody[12];
+float resizeFactor[12];
 
-bool resetSize;
-float resetSizeRate = 0.01f;
+bool resetSize[12];
+float resetSizeRate[12];
 
-bool IncludeHair;
-bool IncludeSheath;
-bool IncludeVisor;
-bool IncludeHead;
-bool IncludeMainWeapon;
-bool IncludeUniqueWeapon;
+bool IncludeHair[12];
+bool IncludeSheath[12];
+bool IncludeVisor[12];
+bool IncludeHead[12];
+bool IncludeMainWeapon[12];
+bool IncludeUniqueWeapon[12];
 
-bool HideHair;
-bool HideSheath;
-bool HideVisor;
-bool HideHead;
+bool HideHair[12];
+bool HideSheath[12];
+bool HideVisor[12];
+bool HideHead[12];
 
-int MainWeaponCount;
-int MainWeaponIndex[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+int MainWeaponIndex[8][12];
 
-int UniqueWeaponCount;
-int UniqueWeaponIndex[3] = { 0, 0, 0 };
+int UniqueWeaponIndex[3][12];
 
-// not ini allocations
+// not json allocations
 
 float resizeFactorEase = 1.f;
 bool hasEnteredQTE = false;
@@ -73,7 +75,7 @@ int bodyModelIndex;
 bool resizeUp;
 
 
-static void updateBodyPart(Behavior* Part, bool IncludePart, bool HidePart, bool inRipperMode) {
+inline void updateBodyPart(Behavior* Part, bool IncludePart, bool HidePart, bool inRipperMode) {
 
 	if (IncludePart) {
 		if (HidePart) {
@@ -91,7 +93,7 @@ static void updateBodyPart(Behavior* Part, bool IncludePart, bool HidePart, bool
 	}
 }
 
-static void updateBody() {
+inline void updateBody() {
 
 	Pl0000* player = cGameUIManager::Instance.m_pPlayer;
 
@@ -121,67 +123,100 @@ static void updateBody() {
 void mainInit() {
 
 
-	CIniReader ini("RipperMeshToggle.ini");
-	targetBody = ini.ReadInteger("Main", "ModelIndex", 65552);
-	resizeFactor = ini.ReadFloat("Main", "RipperSize", 1.0f);
-	resetSize = ini.ReadBoolean("Main", "ResetSizeInQTE", true);
 
-	IncludeHair = ini.ReadBoolean("Include", "Hair", true);
-	IncludeSheath = ini.ReadBoolean("Include", "Sheath", false);
-	IncludeVisor = ini.ReadBoolean("Include", "Visor", true);
-	IncludeHead = ini.ReadBoolean("Include", "Head", true);
-	IncludeMainWeapon = ini.ReadBoolean("Include", "MainWeapon", true);
-	IncludeUniqueWeapon = ini.ReadBoolean("Include", "UniqueWeapon", true);
+	//CIniReader ini("RipperMeshToggle.ini");
+	//targetBody = ini.ReadInteger("Main", "ModelIndex", 65552);
+	//resizeFactor = ini.ReadFloat("Main", "RipperSize", 1.0f);
+	//resetSize = ini.ReadBoolean("Main", "ResetSizeInQTE", true);
 
-	HideHair = ini.ReadBoolean("Hide", "Hair", true);
-	HideSheath = ini.ReadBoolean("Hide", "Sheath", false);
-	HideVisor = ini.ReadBoolean("Hide", "Visor", true);
-	HideHead = ini.ReadBoolean("Hide", "Head", true);
+	//IncludeHair = ini.ReadBoolean("Include", "Hair", true);
+	//IncludeSheath = ini.ReadBoolean("Include", "Sheath", false);
+	//IncludeVisor = ini.ReadBoolean("Include", "Visor", true);
+	//IncludeHead = ini.ReadBoolean("Include", "Head", true);
+	//IncludeMainWeapon = ini.ReadBoolean("Include", "MainWeapon", true);
+	//IncludeUniqueWeapon = ini.ReadBoolean("Include", "UniqueWeapon", true);
 
-	if (resizeFactor >= 1.f) {
-		resizeUp = true;
-	}
-	else {
-		resizeUp = false;
-	}
+	//HideHair = ini.ReadBoolean("Hide", "Hair", true);
+	//HideSheath = ini.ReadBoolean("Hide", "Sheath", false);
+	//HideVisor = ini.ReadBoolean("Hide", "Visor", true);
+	//HideHead = ini.ReadBoolean("Hide", "Head", true);
 
-	if (IncludeMainWeapon)
-	{
-		MainWeaponCount = ini.ReadInteger("MainWeapon", "Count", 0);
 
-		if (MainWeaponCount == 7) {
+	//if (resizeFactor >= 1.f) {
+	//	resizeUp = true;
+	//}
+	//else {
+	//	resizeUp = false;
+	//}
 
-			MainWeaponIndex[0] = 0x11012; // hf blade
-			MainWeaponIndex[1] = 0x13000; // armourbreaker
-			MainWeaponIndex[2] = 0x13001; // stun blade
-			MainWeaponIndex[3] = 0x13002; // hf longsword
-			MainWeaponIndex[4] = 0x13003; // hf wooden sword
-			MainWeaponIndex[5] = 0x13004; // hf machete
-			MainWeaponIndex[6] = 0x13005; // hf murasama
-			MainWeaponIndex[7] = 0x11301; // fox blade
+	//if (IncludeMainWeapon)
+	//{
+	//	MainWeaponCount = ini.ReadInteger("MainWeapon", "Count", 0);
+
+	//	if (MainWeaponCount == 7) {
+
+	//		MainWeaponIndex[0] = 0x11012; // hf blade
+	//		MainWeaponIndex[1] = 0x13000; // armourbreaker
+	//		MainWeaponIndex[2] = 0x13001; // stun blade
+	//		MainWeaponIndex[3] = 0x13002; // hf longsword
+	//		MainWeaponIndex[4] = 0x13003; // hf wooden sword
+	//		MainWeaponIndex[5] = 0x13004; // hf machete
+	//		MainWeaponIndex[6] = 0x13005; // hf murasama
+	//		MainWeaponIndex[7] = 0x11301; // fox blade
+	//	}
+	//	else {
+	//		for (i = 0; i < MainWeaponCount; i++) {
+	//			MainWeaponIndex[i] = ini.ReadInteger("MainWeapon", ("Index" + std::to_string(i)), 0);
+	//		}
+
+	//	}
+	//}
+
+	//if (IncludeUniqueWeapon)
+	//{
+	//	UniqueWeaponCount = ini.ReadInteger("UniqueWeapon", "Count", 0);
+
+	//	if (UniqueWeaponCount == 3) {
+	//		UniqueWeaponIndex[0] = 0x32000;
+	//		UniqueWeaponIndex[1] = 0x32020;
+	//		UniqueWeaponIndex[2] = 0x32030;
+	//	}
+	//	else {
+	//		for (i = 0; i < UniqueWeaponCount; i++) {
+	//			UniqueWeaponIndex[i] = ini.ReadInteger("UniqueWeapon", ("Index" + std::to_string(i)), 0);
+	//		}
+	//	}
+	//}
+
+	std::ifstream jsonStream("RipperMeshToggle.json");
+	json jsonFile = json::parse(jsonStream);
+
+	for (auto indexA = 0; indexA != jsonFile.size(); ++indexA) {
+		targetBody[indexA] = jsonFile["Body" + indexA]["ModelIndex"];
+		resizeFactor[indexA] = jsonFile["Body" + indexA]["RipperSize"];
+
+		resetSize[indexA] = jsonFile["Body" + indexA]["ResetSizeInQTE"];
+
+		IncludeHair[indexA] = jsonFile["Body" + indexA]["Include"]["Hair"];
+		IncludeSheath[indexA] = jsonFile["Body" + indexA]["Include"]["Sheath"];
+		IncludeVisor[indexA] = jsonFile["Body" + indexA]["Include"]["Visor"];
+		IncludeHead[indexA] = jsonFile["Body" + indexA]["Include"]["Head"];
+		IncludeMainWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["MainWeapon"];
+		IncludeUniqueWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["UniqueWeapon"];
+
+		HideHair[indexA] = jsonFile["Body" + indexA]["Hide"]["Hair"];
+		HideSheath[indexA] = jsonFile["Body" + indexA]["Hide"]["Sheath"];
+		HideVisor[indexA] = jsonFile["Body" + indexA]["Hide"]["Visor"];
+		HideHead[indexA] = jsonFile["Body" + indexA]["Hide"]["Head"];
+
+		for (auto indexB = 0; indexB != jsonFile["Body" + indexA]["MainWeaponIndex"].size(); ++indexB) {
+			MainWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["MainWeaponIndex"][indexB];
 		}
-		else {
-			for (i = 0; i < MainWeaponCount; i++) {
-				MainWeaponIndex[i] = ini.ReadInteger("MainWeapon", ("Index" + std::to_string(i)), 0);
-			}
 
+		for (auto indexB = 0; indexB != jsonFile["Body" + indexA]["UniqueWeaponIndex"].size(); ++indexB) {
+			UniqueWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["UniqueWeaponIndex"][indexB];
 		}
-	}
 
-	if (IncludeUniqueWeapon)
-	{
-		UniqueWeaponCount = ini.ReadInteger("UniqueWeapon", "Count", 0);
-
-		if (UniqueWeaponCount == 3) {
-			UniqueWeaponIndex[0] = 0x32000;
-			UniqueWeaponIndex[1] = 0x32020;
-			UniqueWeaponIndex[2] = 0x32030;
-		}
-		else {
-			for (i = 0; i < UniqueWeaponCount; i++) {
-				UniqueWeaponIndex[i] = ini.ReadInteger("UniqueWeapon", ("Index" + std::to_string(i)), 0);
-			}
-		}
 	}
 }
 

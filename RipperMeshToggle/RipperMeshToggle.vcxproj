@@ -76,6 +76,7 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="IniReader.h" />
     <ClInclude Include="ini_parser.hpp" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RipperMeshToggle.h" />
   </ItemGroup>
@@ -95,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="RipperMeshToggle.ini" />
+    <None Include="RipperMeshToggle.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
