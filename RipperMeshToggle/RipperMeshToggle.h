@@ -1,29 +1,31 @@
+#pragma once
+
 extern void mainInit();
 extern void ripperInit();
 extern void ripperTick();
 extern void ripperReinit();
 
-extern int targetBody;
-extern float resizeFactor;
-extern bool resetSize;
+extern int targetBody[12];
+extern float resizeFactor[12];
 
-extern bool IncludeHair;
-extern bool IncludeSheath;
-extern bool IncludeVisor;
-extern bool IncludeHead;
-extern bool IncludeMainWeapon;
-extern bool IncludeUniqueWeapon;
+extern bool resetSize[12];
+extern bool resetSizeRate[12];
 
-extern bool HideHair;
-extern bool HideSheath;
-extern bool HideVisor;
-extern bool HideHead;
+extern bool IncludeHair[12];
+extern bool IncludeSheath[12];
+extern bool IncludeVisor[12];
+extern bool IncludeHead[12];
+extern bool IncludeMainWeapon[12];
+extern bool IncludeUniqueWeapon[12];
 
-extern int MainWeaponCount;
-extern int MainWeaponIndex[];
+extern bool HideHair[12];
+extern bool HideSheath[12];
+extern bool HideVisor[12];
+extern bool HideHead[12];
 
-extern int UniqueWeaponCount;
-extern int UniqueWeaponIndex[];
+extern int MainWeaponIndex[8][12];
+
+extern int UniqueWeaponIndex[3][12];
 
 
 extern bool ripperSwitch;
