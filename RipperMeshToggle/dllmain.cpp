@@ -60,9 +60,7 @@ void gui::RenderWindow()
 		ImGui::Value("HideSheath", HideSheath);
 		ImGui::Value("HideVisor", HideVisor);
 		ImGui::Value("HideHead", HideHead);
-		ImGui::Value("MainWeaponCount", MainWeaponCount);
 		ImGui::Value("MainWeaponIndex", MainWeaponIndex);
-		ImGui::Value("UniqueWeaponCount", UniqueWeaponCount);
 		ImGui::Value("UniqueWeaponIndex", UniqueWeaponIndex);
 		ImGui::Value("ripperSwitch", ripperSwitch);
 		ImGui::Value("hasInitialized", hasInitialized);

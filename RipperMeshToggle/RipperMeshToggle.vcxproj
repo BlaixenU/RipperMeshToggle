@@ -57,7 +57,7 @@
       <AdditionalLibraryDirectories>$(MGR_PLUGIN_SDK)shared\dxsdk\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>if $(MGR_PLUGIN_SDK_USES_MODLOADER) EQU 1 (copy /Y "$(TargetPath)" "$(MGR_PLUGIN_SDK_SCRIPT_OUTPUT_DIR)$(ProjectName)\" &amp;&amp; copy /Y "$(ProjectDir)RipperMeshToggle.ini" "$(MGR_PLUGIN_SDK_SCRIPT_OUTPUT_DIR)$(ProjectName)\") else (copy /Y "$(TargetPath)" "$(MGR_PLUGIN_SDK_SCRIPT_OUTPUT_DIR)")</Command>
+      <Command>if $(MGR_PLUGIN_SDK_USES_MODLOADER) EQU 1 (copy /Y "$(TargetPath)" "$(MGR_PLUGIN_SDK_SCRIPT_OUTPUT_DIR)$(ProjectName)\" &amp;&amp; copy /Y "$(ProjectDir)RipperMeshToggle.json" "$(MGR_PLUGIN_SDK_SCRIPT_OUTPUT_DIR)$(ProjectName)\") else (copy /Y "$(TargetPath)" "$(MGR_PLUGIN_SDK_SCRIPT_OUTPUT_DIR)")</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if $(MGR_PLUGIN_SDK_USES_MODLOADER) EQU 1 (if not exist "$(MGR_PLUGIN_SDK_SCRIPT_OUTPUT_DIR)$(ProjectName)\" (mkdir "$(MGR_PLUGIN_SDK_SCRIPT_OUTPUT_DIR)$(ProjectName)\"))</Command>

@@ -64,6 +64,8 @@ int UniqueWeaponIndex[3][12];
 
 // not json allocations
 
+int bodyCount;
+int bodyJsonIndex;
 float resizeFactorEase = 1.f;
 bool hasEnteredQTE = false;
 bool ripperSwitch = false;
@@ -74,6 +76,15 @@ bool check = false;
 int bodyModelIndex;
 bool resizeUp;
 
+template <typename type> bool inArray(type array[], int size, type target) {
+
+	for (auto index = 0; index < size; index++) {
+		if (array[index] == target) {
+			return true;
+		}
+	}
+	return false;
+}
 
 inline void updateBodyPart(Behavior* Part, bool IncludePart, bool HidePart, bool inRipperMode) {
 
@@ -101,10 +112,22 @@ inline void updateBody() {
 	{
 		bool inRipperMode = player->m_nRipperModeEnabled;
 
-		Behavior* Hair = (Behavior*)player->m_HairHandle.getEntity()->m_pInstance;
-		Behavior* Sheath = (Behavior*)player->m_SheathHandle.getEntity()->m_pInstance;
-		Behavior* Visor = (Behavior*)player->m_HelmetHandle.getEntity()->m_pInstance;
-		Behavior* Head = (Behavior*)player->m_FaceHandle.getEntity()->m_pInstance;
+		Behavior* Hair = nullptr; 
+		Behavior* Sheath = nullptr; 
+		Behavior* Visor = nullptr; 
+		Behavior* Head = nullptr;
+
+		if (Entity* entity = player->m_HairHandle.getEntity(); entity)
+			Hair = (Behavior*)entity->m_pInstance;
+
+		if (Entity* entity = player->m_SheathHandle.getEntity(); entity)
+			Sheath = (Behavior*)entity->m_pInstance;
+
+		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity)
+			Visor = (Behavior*)entity->m_pInstance;
+
+		if (Entity* entity = player->m_FaceHandle.getEntity(); entity)
+			Head = (Behavior*)entity->m_pInstance;
 
 		// make this toggleAnyMesh code more clamplicated, gotta make dt for weapons 
 
@@ -112,86 +135,33 @@ inline void updateBody() {
 		player->toggleAnyMesh("ripper", inRipperMode);
 
 
-		updateBodyPart(Hair, IncludeHair, HideHair, inRipperMode);
-		updateBodyPart(Sheath, IncludeSheath, HideSheath, inRipperMode);
-		updateBodyPart(Visor, IncludeVisor, HideVisor, inRipperMode);
-		updateBodyPart(Head, IncludeHead, HideHead, inRipperMode);
+		if (Hair) {
+			updateBodyPart(Hair, IncludeHair, HideHair, inRipperMode);
+		}
+
+		if (Sheath) {
+			updateBodyPart(Sheath, IncludeSheath, HideSheath, inRipperMode);
+		}
+
+		if (Visor) {
+			updateBodyPart(Visor, IncludeVisor, HideVisor, inRipperMode);
+		}
+
+		if (Head) {
+			updateBodyPart(Head, IncludeHead, HideHead, inRipperMode);
+		}
 	}
 }
 
 
 void mainInit() {
 
-
-
-	//CIniReader ini("RipperMeshToggle.ini");
-	//targetBody = ini.ReadInteger("Main", "ModelIndex", 65552);
-	//resizeFactor = ini.ReadFloat("Main", "RipperSize", 1.0f);
-	//resetSize = ini.ReadBoolean("Main", "ResetSizeInQTE", true);
-
-	//IncludeHair = ini.ReadBoolean("Include", "Hair", true);
-	//IncludeSheath = ini.ReadBoolean("Include", "Sheath", false);
-	//IncludeVisor = ini.ReadBoolean("Include", "Visor", true);
-	//IncludeHead = ini.ReadBoolean("Include", "Head", true);
-	//IncludeMainWeapon = ini.ReadBoolean("Include", "MainWeapon", true);
-	//IncludeUniqueWeapon = ini.ReadBoolean("Include", "UniqueWeapon", true);
-
-	//HideHair = ini.ReadBoolean("Hide", "Hair", true);
-	//HideSheath = ini.ReadBoolean("Hide", "Sheath", false);
-	//HideVisor = ini.ReadBoolean("Hide", "Visor", true);
-	//HideHead = ini.ReadBoolean("Hide", "Head", true);
-
-
-	//if (resizeFactor >= 1.f) {
-	//	resizeUp = true;
-	//}
-	//else {
-	//	resizeUp = false;
-	//}
-
-	//if (IncludeMainWeapon)
-	//{
-	//	MainWeaponCount = ini.ReadInteger("MainWeapon", "Count", 0);
-
-	//	if (MainWeaponCount == 7) {
-
-	//		MainWeaponIndex[0] = 0x11012; // hf blade
-	//		MainWeaponIndex[1] = 0x13000; // armourbreaker
-	//		MainWeaponIndex[2] = 0x13001; // stun blade
-	//		MainWeaponIndex[3] = 0x13002; // hf longsword
-	//		MainWeaponIndex[4] = 0x13003; // hf wooden sword
-	//		MainWeaponIndex[5] = 0x13004; // hf machete
-	//		MainWeaponIndex[6] = 0x13005; // hf murasama
-	//		MainWeaponIndex[7] = 0x11301; // fox blade
-	//	}
-	//	else {
-	//		for (i = 0; i < MainWeaponCount; i++) {
-	//			MainWeaponIndex[i] = ini.ReadInteger("MainWeapon", ("Index" + std::to_string(i)), 0);
-	//		}
-
-	//	}
-	//}
-
-	//if (IncludeUniqueWeapon)
-	//{
-	//	UniqueWeaponCount = ini.ReadInteger("UniqueWeapon", "Count", 0);
-
-	//	if (UniqueWeaponCount == 3) {
-	//		UniqueWeaponIndex[0] = 0x32000;
-	//		UniqueWeaponIndex[1] = 0x32020;
-	//		UniqueWeaponIndex[2] = 0x32030;
-	//	}
-	//	else {
-	//		for (i = 0; i < UniqueWeaponCount; i++) {
-	//			UniqueWeaponIndex[i] = ini.ReadInteger("UniqueWeapon", ("Index" + std::to_string(i)), 0);
-	//		}
-	//	}
-	//}
-
 	std::ifstream jsonStream("RipperMeshToggle.json");
 	json jsonFile = json::parse(jsonStream);
 
-	for (auto indexA = 0; indexA != jsonFile.size(); ++indexA) {
+	for (int indexA = 0; indexA < jsonFile.size(); ++indexA) {
+		bodyCount++;
+
 		targetBody[indexA] = jsonFile["Body" + indexA]["ModelIndex"];
 		resizeFactor[indexA] = jsonFile["Body" + indexA]["RipperSize"];
 
@@ -225,8 +195,15 @@ void ripperInit() {
 
 	Pl0000* player = cGameUIManager::Instance.m_pPlayer;
 
-	if (player && (player->m_nModelIndex == targetBody)) {
+	if (player && inArray<int>(targetBody, 12, player->m_nModelIndex)) {
 		
+		for (auto index = 0; index < 12; index++) {
+			if (player->m_nModelIndex == targetBody[index]) {
+				bodyJsonIndex = index;
+				break;
+			}
+		}
+
 		bodyModelIndex = player->m_nModelIndex;
 
 		updateBody();
@@ -246,20 +223,38 @@ void ripperTick() {
 
 	if (player) {
 
-		Behavior* Hair = (Behavior*)player->m_HairHandle.getEntity()->m_pInstance;
-		Behavior* Sheath = (Behavior*)player->m_SheathHandle.getEntity()->m_pInstance;
-		Behavior* Visor = (Behavior*)player->m_HelmetHandle.getEntity()->m_pInstance;
-		Behavior* Head = (Behavior*)player->m_FaceHandle.getEntity()->m_pInstance;
+		Behavior* Hair = nullptr;
+		Behavior* Sheath = nullptr;
+		Behavior* Visor = nullptr;
+		Behavior* Head = nullptr;
+		Behavior* MainWeapon = nullptr;
+		Behavior* UniqueWeapon = nullptr;
 
-		Behavior* MainWeapon = (Behavior*)player->m_SwordHandle.getEntity()->m_pInstance;
-		Behavior* UniqueWeapon = (Behavior*)player->field_FF8.getEntity()->m_pInstance;
+		if (Entity* entity = player->m_HairHandle.getEntity(); entity)
+			Hair = (Behavior*)entity->m_pInstance;
+
+		if (Entity* entity = player->m_SheathHandle.getEntity(); entity)
+			Sheath = (Behavior*)entity->m_pInstance;
+
+		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity)
+			Visor = (Behavior*)entity->m_pInstance;
+
+		if (Entity* entity = player->m_FaceHandle.getEntity(); entity)
+			Head = (Behavior*)entity->m_pInstance;
+
+		if (Entity* entity = player->m_SwordHandle.getEntity(); entity)
+			MainWeapon = (Behavior*)entity->m_pInstance;
+
+		if (Entity* entity = player->field_FF8.getEntity(); entity)
+			UniqueWeapon = (Behavior*)entity->m_pInstance;
+
 		// replace field_FF8 with m_CustomWeaponHandle once SDK updates
 	}
 
 
 	if (hasInitialized) {
 
-		if (player && (player->m_nModelIndex == targetBody)) {
+		if (player && (player->m_nModelIndex == targetBody[bodyJsonIndex])) {
 
 			if (player->m_nRipperModeEnabled && !ripperSwitch) {
 
@@ -267,7 +262,7 @@ void ripperTick() {
 
 				updateBody();
 
-				player->setSize({ resizeFactor, resizeFactor, resizeFactor, 1.0f });
+				player->setSize({ resizeFactor[bodyJsonIndex], resizeFactor[bodyJsonIndex], resizeFactor[bodyJsonIndex], 1.0f});
 			}
 			else {
 
@@ -295,11 +290,11 @@ void ripperTick() {
 					if (resizeUp) {
 						if (player->m_nRipperModeEnabled && hasEnteredQTE) {
 
-							if ((resizeFactorEase + 0.01f) < resizeFactor) {
+							if ((resizeFactorEase + 0.01f) < resizeFactor[bodyJsonIndex]) {
 								resizeFactorEase += 0.01f;
 							}
 							else {
-								resizeFactorEase = resizeFactor;
+								resizeFactorEase = resizeFactor[bodyJsonIndex];
 							}
 
 							player->setSize({ resizeFactorEase, resizeFactorEase, resizeFactorEase, 1.0f });
@@ -308,11 +303,11 @@ void ripperTick() {
 					else {
 						if (player->m_nRipperModeEnabled && hasEnteredQTE) {
 
-							if ((resizeFactorEase - 0.01f) > resizeFactor) {
+							if ((resizeFactorEase - 0.01f) > resizeFactor[bodyJsonIndex]) {
 								resizeFactorEase -= 0.01f;
 							}
 							else {
-								resizeFactorEase = resizeFactor;
+								resizeFactorEase = resizeFactor[bodyJsonIndex];
 							}
 
 							player->setSize({ resizeFactorEase, resizeFactorEase, resizeFactorEase, 1.0f });
