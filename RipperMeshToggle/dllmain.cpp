@@ -7,16 +7,7 @@
 #include "imgui/imgui.h"
 #include <string>
 
-bool debugMode = false;
-
-void swapbool() {
-	if (check) {
-		check = false;
-	}
-	else {
-		check = true;
-	}
-}
+static bool debugMode = true;
 
 class Plugin
 {
@@ -37,7 +28,6 @@ public:
 
 		// and here's your code
 		Events::OnSceneStartupEvent.after += ripperReinit;
-		Events::OnSceneStartupEvent.after += swapbool;
 		Events::OnApplicationStartEvent.after += mainInit;
 		Events::OnUpdateEvent.after += ripperTick;
 	}
@@ -47,32 +37,10 @@ public:
 void gui::RenderWindow()
 {
 	if (debugMode) {
-		ImGui::Begin("Values");
+		ImGui::Begin("Debug");
 
-		ImGui::Value("targetBody", targetBody);
-		ImGui::Value("IncludeHair", IncludeHair);
-		ImGui::Value("IncludeSheath", IncludeSheath);
-		ImGui::Value("IncludeVisor", IncludeVisor);
-		ImGui::Value("IncludeHead", IncludeHead);
-		ImGui::Value("IncludeMainWeapon", IncludeMainWeapon);
-		ImGui::Value("IncludeUniqueWeapon", IncludeUniqueWeapon);
-		ImGui::Value("HideHair", HideHair);
-		ImGui::Value("HideSheath", HideSheath);
-		ImGui::Value("HideVisor", HideVisor);
-		ImGui::Value("HideHead", HideHead);
-		ImGui::Value("MainWeaponIndex", MainWeaponIndex);
-		ImGui::Value("UniqueWeaponIndex", UniqueWeaponIndex);
-		ImGui::Value("ripperSwitch", ripperSwitch);
-		ImGui::Value("hasInitialized", hasInitialized);
-		ImGui::Value("i", i);
-		ImGui::Value("num", num);
-		ImGui::Value("check", check);
-		ImGui::Value("bodyModelIndex", bodyModelIndex);
-		ImGui::Value("resetSize", resetSize);
-		ImGui::Value("resizeFactor", resizeFactor);
-		ImGui::Value("resizeFactorEase", resizeFactorEase);
-
-
+		ImGui::Text("Below is false if json reading unsuccessful");
+		ImGui::Value("Log", asiLog);
 
 		ImGui::End();
 	}

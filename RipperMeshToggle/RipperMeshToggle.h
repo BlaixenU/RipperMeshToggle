@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 extern void mainInit();
 extern void ripperInit();
@@ -35,3 +36,4 @@ extern int num;
 extern bool check;
 extern int bodyModelIndex;
 extern float resizeFactorEase;
+extern bool asiLog;
