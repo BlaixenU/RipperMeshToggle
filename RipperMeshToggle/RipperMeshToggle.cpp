@@ -36,7 +36,9 @@
 #include "json.hpp"
 #include <algorithm>
 #include <vector>
+#include <filesystem>
 using json = nlohmann::json;
+namespace fs = std::filesystem;
 
 // json allocations
 
@@ -75,6 +77,7 @@ int num;
 bool check = false;
 int bodyModelIndex;
 bool resizeUp;
+bool asiLog;
 
 template <typename type> bool inArray(type array[], int size, type target) {
 
@@ -156,37 +159,57 @@ inline void updateBody() {
 
 void mainInit() {
 
+	// frouk sent this code so if i ever forget hopefully this comment will remind me
+
+	char buff[MAX_PATH];
+	HMODULE hm = NULL;
+	GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&strcmp, &hm);
+	GetModuleFileNameA(hm, buff, sizeof(buff));
+
+	char* ptr = strrchr(buff, '\\'); // remove the executeable name from the path
+
+	if (ptr)
+		*ptr = '\0';
+
+
+
+
 	std::ifstream jsonStream("RipperMeshToggle.json");
-	json jsonFile = json::parse(jsonStream);
 
-	for (int indexA = 0; indexA < jsonFile.size(); ++indexA) {
-		bodyCount++;
 
-		targetBody[indexA] = jsonFile["Body" + indexA]["ModelIndex"];
-		resizeFactor[indexA] = jsonFile["Body" + indexA]["RipperSize"];
 
-		resetSize[indexA] = jsonFile["Body" + indexA]["ResetSizeInQTE"];
+	if (jsonStream) {
+		asiLog = true;
 
-		IncludeHair[indexA] = jsonFile["Body" + indexA]["Include"]["Hair"];
-		IncludeSheath[indexA] = jsonFile["Body" + indexA]["Include"]["Sheath"];
-		IncludeVisor[indexA] = jsonFile["Body" + indexA]["Include"]["Visor"];
-		IncludeHead[indexA] = jsonFile["Body" + indexA]["Include"]["Head"];
-		IncludeMainWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["MainWeapon"];
-		IncludeUniqueWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["UniqueWeapon"];
+		json jsonFile = json::parse(jsonStream);
 
-		HideHair[indexA] = jsonFile["Body" + indexA]["Hide"]["Hair"];
-		HideSheath[indexA] = jsonFile["Body" + indexA]["Hide"]["Sheath"];
-		HideVisor[indexA] = jsonFile["Body" + indexA]["Hide"]["Visor"];
-		HideHead[indexA] = jsonFile["Body" + indexA]["Hide"]["Head"];
+		for (int indexA = 0; indexA < jsonFile.size(); ++indexA) {
 
-		for (auto indexB = 0; indexB != jsonFile["Body" + indexA]["MainWeaponIndex"].size(); ++indexB) {
-			MainWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["MainWeaponIndex"][indexB];
+			bodyCount++;
+			targetBody[indexA] = jsonFile["Body" + indexA]["ModelIndex"];
+			resizeFactor[indexA] = jsonFile["Body" + indexA]["RipperSize"];
+			resetSize[indexA] = jsonFile["Body" + indexA]["ResetSizeInQTE"];
+
+			IncludeHair[indexA] = jsonFile["Body" + indexA]["Include"]["Hair"];
+			IncludeSheath[indexA] = jsonFile["Body" + indexA]["Include"]["Sheath"];
+			IncludeVisor[indexA] = jsonFile["Body" + indexA]["Include"]["Visor"];
+			IncludeHead[indexA] = jsonFile["Body" + indexA]["Include"]["Head"];
+			IncludeMainWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["MainWeapon"];
+			IncludeUniqueWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["UniqueWeapon"];
+
+			HideHair[indexA] = jsonFile["Body" + indexA]["Hide"]["Hair"];
+			HideSheath[indexA] = jsonFile["Body" + indexA]["Hide"]["Sheath"];
+			HideVisor[indexA] = jsonFile["Body" + indexA]["Hide"]["Visor"];
+			HideHead[indexA] = jsonFile["Body" + indexA]["Hide"]["Head"];
+
+			for (auto indexB = 0; indexB != jsonFile["Body" + indexA]["MainWeaponIndex"].size(); ++indexB) {
+				MainWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["MainWeaponIndex"][indexB];
+			}
+
+			for (auto indexB = 0; indexB != jsonFile["Body" + indexA]["UniqueWeaponIndex"].size(); ++indexB) {
+				UniqueWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["UniqueWeaponIndex"][indexB];
+			}
 		}
-
-		for (auto indexB = 0; indexB != jsonFile["Body" + indexA]["UniqueWeaponIndex"].size(); ++indexB) {
-			UniqueWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["UniqueWeaponIndex"][indexB];
-		}
-
 	}
 }
 
