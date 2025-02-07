@@ -20,7 +20,7 @@
       "Head": true
     },
 
-    "MainWeaponIndex": [],
-    "UniqueWeaponIndex": []
+    "MainWeaponIndex": [0],
+    "UniqueWeaponIndex": [0]
   }
 }

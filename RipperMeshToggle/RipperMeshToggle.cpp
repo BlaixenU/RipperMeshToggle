@@ -179,69 +179,102 @@ void mainInit() {
 		*ptr = '\0';
 	}
 
-	strcat(buff, "RipperMeshToggle.json");
+	strcat(buff, "\\RipperMeshToggle.json");
+
+	std::ofstream pathStream("streamoutput.txt");
+	pathStream << buff;
+	pathStream.close();
+
 
 	std::fstream jsonStream;
+	json jsonFile;
 
 	if (fileExists(buff)) {
-		jsonStream.open(buff);
+		jsonStream.open(buff);  
 	}
 
-	if (jsonStream) {
-		asiLog = true;
+	asiLog = false;
 
-		json jsonFile = json::parse(jsonStream, nullptr, false);
-		
+
+
+
+	if (jsonStream) {
+
+		try {
+			jsonFile = json::parse(jsonStream, nullptr, true);
+		}
+		catch (const nlohmann::json::exception& e) {
+			std::ofstream logFile("jsonException.txt");
+			if (logFile.is_open()) {
+				logFile << "JSON Parse Error: " << e.what() << std::endl;
+				logFile << "Exception ID: " << e.id << std::endl;
+				logFile.close();
+			}
+		}
+
 		int indexB = 0;
 		int indexA = 0;
-		
 
 		// placeholder test stuff
 
-		targetBody[0] = jsonFile[0]["ModelIndex"];
-		resizeFactor[0] = jsonFile[0]["RipperSize"];
-		resetSize[0] = jsonFile[0]["ResetSizeInQTE"];
-
-		IncludeHair[0] = jsonFile[0]["Include"]["Hair"];
-		IncludeSheath[0] = jsonFile[0]["Include"]["Sheath"];
-		IncludeVisor[0] = jsonFile[0]["Include"]["Visor"];
-		IncludeHead[0] = jsonFile[0]["Include"]["Head"];
-		IncludeMainWeapon[0] = jsonFile[0]["Include"]["MainWeapon"];
-		IncludeUniqueWeapon[0] = jsonFile[0]["Include"]["UniqueWeapon"];
-
-		HideHair[0] = jsonFile[0]["Hide"]["Hair"];
-		HideSheath[0] = jsonFile[0]["Hide"]["Sheath"];
-		HideVisor[0] = jsonFile[0]["Hide"]["Visor"];
-		HideHead[0] = jsonFile[0]["Hide"]["Head"];
-
-
-
-		/*for (indexA = 0; indexA < jsonFile.size(); ++indexA) {
-
-			targetBody[indexA] = jsonFile["Body" + indexA]["ModelIndex"];
-			resizeFactor[indexA] = jsonFile["Body" + indexA]["RipperSize"];
-			resetSize[indexA] = jsonFile["Body" + indexA]["ResetSizeInQTE"];
-
-			IncludeHair[indexA] = jsonFile["Body" + indexA]["Include"]["Hair"];
-			IncludeSheath[indexA] = jsonFile["Body" + indexA]["Include"]["Sheath"];
-			IncludeVisor[indexA] = jsonFile["Body" + indexA]["Include"]["Visor"];
-			IncludeHead[indexA] = jsonFile["Body" + indexA]["Include"]["Head"];
-			IncludeMainWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["MainWeapon"];
-			IncludeUniqueWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["UniqueWeapon"];
-
-			HideHair[indexA] = jsonFile["Body" + indexA]["Hide"]["Hair"];
-			HideSheath[indexA] = jsonFile["Body" + indexA]["Hide"]["Sheath"];
-			HideVisor[indexA] = jsonFile["Body" + indexA]["Hide"]["Visor"];
-			HideHead[indexA] = jsonFile["Body" + indexA]["Hide"]["Head"];
-
-			for (indexB = 0; indexB < jsonFile["Body" + indexA]["MainWeaponIndex"].size(); ++indexB) {
-				MainWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["MainWeaponIndex"][indexB];
-			}
-
-			for (indexB = 0; indexB < jsonFile["Body" + indexA]["UniqueWeaponIndex"].size(); ++indexB) {
-				UniqueWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["UniqueWeaponIndex"][indexB];
+		/*try {
+			targetBody[0] = jsonFile["Body0"]["ModelIndex"];
+		}
+		catch (const nlohmann::json::exception &e) {
+			std::ofstream logFile("jsonException1.txt");
+			if (logFile.is_open()) {
+				logFile << "JSON Parse Error: " << e.what() << std::endl;
+				logFile << "Exception ID: " << e.id << std::endl;
+				logFile.close();;
 			}
 		}*/
+
+		{
+			targetBody[0] = jsonFile["Body0"]["ModelIndex"];
+			resizeFactor[0] = jsonFile["Body0"]["RipperSize"];
+			resetSize[0] = jsonFile["Body0"]["ResetSizeInQTE"];
+
+			IncludeHair[0] = jsonFile["Body0"]["Include"]["Hair"];
+			IncludeSheath[0] = jsonFile["Body0"]["Include"]["Sheath"];
+			IncludeVisor[0] = jsonFile["Body0"]["Include"]["Visor"];
+			IncludeHead[0] = jsonFile["Body0"]["Include"]["Head"];
+			IncludeMainWeapon[0] = jsonFile["Body0"]["Include"]["MainWeapon"];
+			IncludeUniqueWeapon[0] = jsonFile["Body0"]["Include"]["UniqueWeapon"];
+
+			HideHair[0] = jsonFile["Body0"]["Hide"]["Hair"];
+			HideSheath[0] = jsonFile["Body0"]["Hide"]["Sheath"];
+			HideVisor[0] = jsonFile["Body0"]["Hide"]["Visor"];
+			HideHead[0] = jsonFile["Body0"]["Hide"]["Head"];
+		}
+
+
+
+		//for (indexA = 0; indexA < jsonFile.size(); ++indexA) { // add try-catch statement to this for value access error
+
+		//	targetBody[indexA] = jsonFile["Body" + indexA]["ModelIndex"];
+		//	resizeFactor[indexA] = jsonFile["Body" + indexA]["RipperSize"];
+		//	resetSize[indexA] = jsonFile["Body" + indexA]["ResetSizeInQTE"];
+
+		//	IncludeHair[indexA] = jsonFile["Body" + indexA]["Include"]["Hair"];
+		//	IncludeSheath[indexA] = jsonFile["Body" + indexA]["Include"]["Sheath"];
+		//	IncludeVisor[indexA] = jsonFile["Body" + indexA]["Include"]["Visor"];
+		//	IncludeHead[indexA] = jsonFile["Body" + indexA]["Include"]["Head"];
+		//	IncludeMainWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["MainWeapon"];
+		//	IncludeUniqueWeapon[indexA] = jsonFile["Body" + indexA]["Include"]["UniqueWeapon"];
+
+		//	HideHair[indexA] = jsonFile["Body" + indexA]["Hide"]["Hair"];
+		//	HideSheath[indexA] = jsonFile["Body" + indexA]["Hide"]["Sheath"];
+		//	HideVisor[indexA] = jsonFile["Body" + indexA]["Hide"]["Visor"];
+		//	HideHead[indexA] = jsonFile["Body" + indexA]["Hide"]["Head"];
+
+		//	for (indexB = 0; indexB < jsonFile["Body" + indexA]["MainWeaponIndex"].size(); ++indexB) {
+		//		MainWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["MainWeaponIndex"][indexB];
+		//	}
+
+		//	for (indexB = 0; indexB < jsonFile["Body" + indexA]["UniqueWeaponIndex"].size(); ++indexB) {
+		//		UniqueWeaponIndex[indexA][indexB] = jsonFile["Body" + indexA]["UniqueWeaponIndex"][indexB];
+		//	}
+		//}
 	}
 }
 

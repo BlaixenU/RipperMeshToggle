@@ -39,8 +39,44 @@ void gui::RenderWindow()
 	if (debugMode) {
 		ImGui::Begin("Debug");
 
-		ImGui::Text("Below is false if json reading unsuccessful");
-		ImGui::Value("Log", asiLog);
+
+		if (ImGui::BeginTabBar("Costumes")) {
+			for (int index = 0; index < 12; index++) {
+
+				std::string bruh = std::to_string(index);
+				const char* bodyIndex = bruh.c_str();
+
+				if (ImGui::BeginTabItem(bodyIndex)) {
+					ImGui::Value("targetBody", targetBody[index]);
+					ImGui::Value("resizeFactor", resizeFactor[index]);
+
+					ImGui::Text("\n");
+
+					ImGui::Value("resetSize", resetSize[index]);
+
+					ImGui::Text("\n");
+
+					ImGui::Value("IncludeHair", IncludeHair[index]);
+					ImGui::Value("IncludeSheath", IncludeSheath[index]);
+					ImGui::Value("IncludeVisor", IncludeVisor[index]);
+					ImGui::Value("IncludeHead", IncludeHead[index]);
+					ImGui::Value("IncludeMainWeapon", IncludeMainWeapon[index]);
+					ImGui::Value("IncludeUniqueWeapon", IncludeUniqueWeapon[index]);
+					
+					ImGui::Text("\n");
+
+
+					ImGui::Value("HideHair", HideHair[index]);
+					ImGui::Value("HideSheath", HideSheath[index]);
+					ImGui::Value("HideVisor", HideVisor[index]);
+					ImGui::Value("HideHead", HideHead[index]);
+
+					ImGui::EndTabItem();
+				}
+			}
+			ImGui::EndTabBar();
+		}
+
 
 		ImGui::End();
 	}
