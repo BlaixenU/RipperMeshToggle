@@ -7,7 +7,7 @@
 #include "imgui/imgui.h"
 #include <string>
 
-static bool debugMode = true;
+static bool debugMode = false;
 
 class Plugin
 {
@@ -30,6 +30,12 @@ public:
 		Events::OnSceneStartupEvent.after += ripperReinit;
 		Events::OnApplicationStartEvent.after += mainInit;
 		Events::OnUpdateEvent.after += ripperTick;
+
+		Events::OnUpdateEvent.after += []() {
+			if (shared::IsKeyPressed('Z', false)) {
+				debugMode ? debugMode = false : debugMode = true;
+			}
+		};
 	}
 } plugin;
 
@@ -39,7 +45,7 @@ void gui::RenderWindow()
 	if (debugMode) {
 		ImGui::Begin("Debug");
 
-
+		ImGui::Text("Bodies");
 		if (ImGui::BeginTabBar("Costumes")) {
 			for (int index = 0; index < 12; index++) {
 
