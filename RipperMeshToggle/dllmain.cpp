@@ -83,7 +83,13 @@ void gui::RenderWindow()
 			}
 			ImGui::EndTabBar();
 		}
-
+		
+		ImGui::Text("\n");
+		ImGui::Value("Body Json Index", bodyJsonIndex);
+		ImGui::Value("Blademode Type", blademodetype);
+		if (pCurrentCostume) {
+			ImGui::Value("currentPlSkin", **pCurrentCostume);
+		}
 
 		ImGui::End();
 	}

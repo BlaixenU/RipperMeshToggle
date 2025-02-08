@@ -38,7 +38,7 @@
 #include <algorithm>
 using json = nlohmann::json;
 namespace fs = std::filesystem;
-
+ 
 // json allocations
 
 int targetBody[12];
@@ -76,16 +76,8 @@ int num;
 bool check = false;
 int bodyModelIndex;
 bool resizeUp;
-
-template <typename type>
-type customMax(const type &a, const type &b) {
-	return (a > b) ? a : b;
-}
-
-template <typename type>
-type customMin(const type &a, const type &b) {
-	return (a < b) ? a : b;
-}
+int blademodetype;
+int** pCurrentCostume;
 
 bool fileExists(const std::string& filename) {
 	std::ifstream file(filename);
@@ -176,24 +168,26 @@ void mainInit() {
 
 	// frouk sent this code so if i ever forget hopefully this comment will remind me
 
-	char buff[MAX_PATH];
+	char cwd[MAX_PATH];
 	HMODULE hm = NULL;
 	GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&dummy, &hm);
-	GetModuleFileNameA(hm, buff, sizeof(buff));
+	GetModuleFileNameA(hm, cwd, sizeof(cwd));
 
-	char* ptr = strrchr(buff, '\\'); // remove the executeable name from the path
+	char* ptr = strrchr(cwd, '\\'); // remove the executeable name from the path
 
 	if (ptr) {
 		*ptr = '\0';
 	}
 
-	strcat(buff, "\\RipperMeshToggle.json");
+
+
+	strcat(cwd, "\\RipperMeshToggle.json");
 
 	std::fstream jsonStream;
 	json jsonFile;
 
-	if (fileExists(buff)) {
-		jsonStream.open(buff);  
+	if (fileExists(cwd)) {
+		jsonStream.open(cwd);  
 	}
 
 	if (jsonStream) {
@@ -202,7 +196,7 @@ void mainInit() {
 			jsonFile = json::parse(jsonStream, nullptr, true);
 		}
 		catch (const nlohmann::json::exception& e) {
-			std::ofstream logFile("jsonException.txt");
+			std::ofstream logFile("Error.txt");
 			if (logFile.is_open()) {
 				logFile << "JSON Parse Error: " << e.what() << std::endl;
 				logFile << "Exception ID: " << e.id << std::endl;
@@ -216,7 +210,7 @@ void mainInit() {
 		for (indexA = 0; indexA < jsonFile.size(); ++indexA) { // add try-catch statement to this for value access error
 			 
 			std::string bodyPlusIndexA = "Body" + std::to_string(indexA);
-
+			 
 			targetBody[indexA] = jsonFile[bodyPlusIndexA]["ModelIndex"];
 			resizeFactor[indexA] = jsonFile[bodyPlusIndexA]["RipperSize"];
 			resetSize[indexA] = jsonFile[bodyPlusIndexA]["ResetSizeInQTE"];
@@ -242,6 +236,8 @@ void mainInit() {
 				UniqueWeaponIndex[indexA][indexB] = jsonFile[bodyPlusIndexA]["UniqueWeaponIndex"][indexB];
 			}
 		}
+
+		jsonStream.close();
 	}
 }
 
@@ -250,26 +246,28 @@ void ripperInit() {
 
 	Pl0000* player = cGameUIManager::Instance.m_pPlayer;
 
-	if (player && inArray<int>(targetBody, 12, player->m_nModelIndex)) {
-		
-		for (auto index = 0; index < 12; index++) {
-			if (player->m_nModelIndex == targetBody[index]) {
+	if (player) {
+
+		int*& currentPlSkin = *(int**)(shared::base + 0x17EA01C);
+
+		for (int index = 0; index < 12; ++index) {
+			if (targetBody[index] == *currentPlSkin) {
 				bodyJsonIndex = index;
-				break;
 			}
 		}
 
-		bodyModelIndex = player->m_nModelIndex;
+		if (inArray<int>(targetBody, 12, *currentPlSkin)) {
 
-		updateBody();
+			updateBody();
 
-		player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
+			player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
 
-		ripperSwitch = false;
+			ripperSwitch = false;
 
-		hasInitialized = true;
-
+			hasInitialized = true;
+		}
 	}
+
 }
 
 
@@ -305,70 +303,74 @@ void ripperTick() {
 			UniqueWeapon = (Behavior*)entity->m_pInstance;
 
 		// replace field_FF8 with m_CustomWeaponHandle once SDK updates
-	}
 
+		int*& currentPlSkin = *(int**)(shared::base + 0x17EA01C);
+		pCurrentCostume = &currentPlSkin;
 
-	if (hasInitialized) {
+		blademodetype = player->m_nBladeModeType;
+		bodyModelIndex = player->m_nModelIndex;
 
-		if (player && (player->m_nModelIndex == targetBody[bodyJsonIndex])) {
+		if (hasInitialized) {
 
-			if (player->m_nRipperModeEnabled && !ripperSwitch) {
+			if (*currentPlSkin == targetBody[bodyJsonIndex]) {
 
-				ripperSwitch = true;
+				if (player->m_nRipperModeEnabled && !ripperSwitch) {
 
-				updateBody();
-
-				player->setSize({ resizeFactor[bodyJsonIndex], resizeFactor[bodyJsonIndex], resizeFactor[bodyJsonIndex], 1.0f});
-			}
-			else {
-
-				if (!player->m_nRipperModeEnabled && ripperSwitch) {
-
-					ripperSwitch = false;
+					ripperSwitch = true;
 
 					updateBody();
 
-					player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
-
-					hasEnteredQTE = false;
-				}
-			}
-
-
-			if (resetSize) {
-				if (Trigger::StaFlags.STA_QTE) {
-					player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
-					resizeFactorEase = 1.f;
-					hasEnteredQTE = true;
+					player->setSize({ resizeFactor[bodyJsonIndex], resizeFactor[bodyJsonIndex], resizeFactor[bodyJsonIndex], 1.0f });
 				}
 				else {
-					// i tried refactoring this once but nothing i tried worked so i'll leave it like this, not even i remember the logic behind this, it just works
-					if (player->m_nRipperModeEnabled && hasEnteredQTE) {
-						if (resizeFactor[bodyJsonIndex] > 1.0f) {
-							if ((resizeFactorEase + resetSizeRate[bodyJsonIndex]) < resizeFactor[bodyJsonIndex]) {
-								resizeFactorEase += resetSizeRate[bodyJsonIndex];
-							}
-							else {
-								resizeFactorEase = resizeFactor[bodyJsonIndex];
-							}
-						}
-						else {
-							if ((resizeFactorEase - resetSizeRate[bodyJsonIndex]) > resizeFactor[bodyJsonIndex]) {
-								resizeFactorEase -= resetSizeRate[bodyJsonIndex];
-							}
-							else {
-								resizeFactorEase = resizeFactor[bodyJsonIndex];
-							}
-						}
-						player->setSize({ resizeFactorEase, resizeFactorEase, resizeFactorEase, 1.0f });
 
+					if (!player->m_nRipperModeEnabled && ripperSwitch) {
+
+						ripperSwitch = false;
+
+						updateBody();
+
+						player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
+
+						hasEnteredQTE = false;
+					}
+				}
+
+
+				if (resetSize[bodyJsonIndex]) {
+					if (Trigger::StaFlags.STA_QTE || player->m_nBladeModeType == 8) {
+						player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
+						resizeFactorEase = 1.f;
+						hasEnteredQTE = true;
+					}
+					else {
+						if (player->m_nRipperModeEnabled && hasEnteredQTE) {
+							if (resizeFactor[bodyJsonIndex] > 1.0f) {
+								if ((resizeFactorEase + resetSizeRate[bodyJsonIndex]) < resizeFactor[bodyJsonIndex]) {
+									resizeFactorEase += resetSizeRate[bodyJsonIndex];
+								}
+								else {
+									resizeFactorEase = resizeFactor[bodyJsonIndex];
+								}
+							}
+							else {
+								if ((resizeFactorEase - resetSizeRate[bodyJsonIndex]) > resizeFactor[bodyJsonIndex]) {
+									resizeFactorEase -= resetSizeRate[bodyJsonIndex];
+								}
+								else {
+									resizeFactorEase = resizeFactor[bodyJsonIndex];
+								}
+							}
+
+							player->setSize({ resizeFactorEase, resizeFactorEase, resizeFactorEase, 1.0f });
+						}
 					}
 				}
 			}
 		}
-	}
-	else {
-		ripperInit();
+		else {
+			ripperInit();
+		}
 	}
 }
 

@@ -1,6 +1,6 @@
 {
   "Body0": {
-    "ModelIndex": 65552,
+    "ModelIndex": 69648,
     "RipperSize": 1.25,
     "ResetSizeInQTE": true,
     "ResetSizeRate": 0.01,
@@ -23,5 +23,30 @@
 
     "MainWeaponIndex": [0],
     "UniqueWeaponIndex": [0]
+  },
+  "Body1": {
+    "ModelIndex": 69680,
+    "RipperSize": 1.0,
+    "ResetSizeInQTE": false,
+    "ResetSizeRate": 0.01,
+
+    "Include": {
+      "Hair": true,
+      "Sheath": false,
+      "Visor": true,
+      "Head": true,
+      "MainWeapon": false,
+      "UniqueWeapon": false
+    },
+
+    "Hide": {
+      "Hair": true,
+      "Sheath": false,
+      "Visor": true,
+      "Head": true
+    },
+
+    "MainWeaponIndex": [ 0 ],
+    "UniqueWeaponIndex": [ 0 ]
   }
 }

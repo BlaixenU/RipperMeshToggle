@@ -36,3 +36,6 @@ extern int num;
 extern bool check;
 extern int bodyModelIndex;
 extern float resizeFactorEase;
+extern int blademodetype;
+extern int bodyJsonIndex;
+extern int** pCurrentCostume;
