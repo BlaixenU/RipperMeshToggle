@@ -59,6 +59,7 @@ void gui::RenderWindow()
 					ImGui::Text("\n");
 
 					ImGui::Value("resetSize", resetSize[index]);
+					ImGui::Value("resetSizeRate", resetSizeRate[index]);
 
 					ImGui::Text("\n");
 
