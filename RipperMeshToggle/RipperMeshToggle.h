@@ -10,7 +10,7 @@ extern int targetBody[12];
 extern float resizeFactor[12];
 
 extern bool resetSize[12];
-extern bool resetSizeRate[12];
+extern float resetSizeRate[12];
 
 extern bool IncludeHair[12];
 extern bool IncludeSheath[12];
@@ -36,4 +36,3 @@ extern int num;
 extern bool check;
 extern int bodyModelIndex;
 extern float resizeFactorEase;
-extern bool asiLog;

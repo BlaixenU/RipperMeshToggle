@@ -3,6 +3,7 @@
     "ModelIndex": 65552,
     "RipperSize": 1.25,
     "ResetSizeInQTE": true,
+    "ResetSizeRate": 0.01,
 
     "Include": {
       "Hair": true,
