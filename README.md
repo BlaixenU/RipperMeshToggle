@@ -30,7 +30,7 @@ To actually configure the ASI for your mod, head on over to RipperMeshToggle.jso
 Aside from that, there are the `Include` and `Hide` arrays. The simplest way to understand these is to think of which parts of the player need to be affected in any way at all. If you were to keep the sheath the same regardless of if the player is in Ripper mode or not, then keep the value of `Sheath` inside `Include` false. However, if you want a part to be *hidden* during Ripper mode, then set it as true inside `Include` and true inside `Hide`. Finally, if you want to make the part also have it's own ripper mesh, then you can include it but not hide it.
 
 > [!TIP]
-> If you want to make it so a part is hidden when not in Ripper mode but appears when in Ripper mode, you can have it included but not hidden, and then inside the model, only contain meshes of the 'ripper' meshgroup (if you don't understand, just scroll down to the 'Setting up (Model)' section.
+> If you want to make it so a part is hidden when not in Ripper mode but appears when in Ripper mode, you can have it included but not hidden, and then inside the model, only contain meshes of the 'ripper' meshgroup.
 
 There are also Includes for MainWeapon and UniqueWeapon. As of yet, functionality for this has not been added, so it's better to keep both as false.
 
