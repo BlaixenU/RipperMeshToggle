@@ -11,6 +11,14 @@ Head over to the Releases section of this repository and download the latest ver
 
 Install these files for your mod the same way you'd install an ASI mod with an ini file, i.e place in the scripts folder of GameData or place alongside the contents in a Rising Mod Manager mod directory and mention 'RipperMeshToggle.asi' in the `Dll File:` field of the mod's settings.
 
+## Setting Up (Model)
+
+This part is relatively simple. Any meshes inside your model which are of the 'normal' meshgroup will be hidden during Ripper mode and visible outside of Ripper mode, and any meshes inside your model which are of the 'ripper' meshgroup wil be hidden outside of Ripper mode and visible during Ripper mode, in other words, Ripper body is the ripper meshgroup, and normal body is the normal meshgroup.
+
+The reason I didn't start with the simpler definition is because it's possible to have extra meshgroups which aren't affected by the logic of the ASI for whatever purpose the modder may want. 
+
+Since this means that both the Ripper and normal model will have to be the same model, give extra care to the texture filenames and to the inclusion of the extra textures inside the WTA/WTP. 
+
 ## Setting Up (JSON)
 
 ### Essentials
@@ -29,10 +37,3 @@ There are also Includes for MainWeapon and UniqueWeapon. As of yet, functionalit
 ### Extras
 There are also keys named RipperSize and ResetSizeInQTE, as well as ResetSizeRate. When in Ripper mode, the ASI will scale the player according to the value in RipperSize, which has a base value of 1.000 (100%), and if ResetSizeInQTE is true, then the size of the player will be reset inside any QuickTimeEvents. The reason you would want your characters to have their size reset is because alot of QTEs are utterly borked when the player is of a different scale and this is a fine compromise between consistency and functionality. ResetSizeRate has a very small value which refers to the increments that the ASI takes while resizing the player back to its RipperSize once a QTE ends. A greater ResetSizeRate entails less time to reset back to RipperSize, and vice versa.
 
-## Setting Up (Model)
-
-This part is relatively simple. Any meshes inside your model which are of the 'normal' meshgroup will be hidden during Ripper mode and visible outside of Ripper mode, and any meshes inside your model which are of the 'ripper' meshgroup wil be hidden outside of Ripper mode and visible during Ripper mode, in other words, Ripper body is the ripper meshgroup, and normal body is the normal meshgroup.
-
-The reason I didn't start with the simpler definition is because it's possible to have extra meshgroups which aren't affected by the logic of the ASI for whatever purpose the modder may want. 
-
-Since this means that both the Ripper and normal model will have to be the same model, give extra care to the texture filenames and to the inclusion of the extra textures inside the WTA/WTP. 
