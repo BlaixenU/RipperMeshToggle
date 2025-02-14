@@ -39,3 +39,4 @@ extern float resizeFactorEase;
 extern int blademodetype;
 extern int bodyJsonIndex;
 extern int** pCurrentCostume;
+extern bool debugMode;

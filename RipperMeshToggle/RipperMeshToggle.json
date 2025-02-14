@@ -1,4 +1,5 @@
 {
+  "DebugMode": true,
   "Body0": {
     "ModelIndex": 69648,
     "RipperSize": 1.25,
@@ -21,8 +22,8 @@
       "Head": true
     },
 
-    "MainWeaponIndex": [0],
-    "UniqueWeaponIndex": [0]
+    "MainWeaponIndex": [ 0 ],
+    "UniqueWeaponIndex": [ 0 ]
   },
   "Body1": {
     "ModelIndex": 69680,

@@ -7,7 +7,7 @@
 #include "imgui/imgui.h"
 #include <string>
 
-static bool debugMode = false;
+static bool windowOpened = false;
 
 class Plugin
 {
@@ -32,8 +32,8 @@ public:
 		Events::OnUpdateEvent.after += ripperTick;
 
 		Events::OnUpdateEvent.after += []() {
-			if (shared::IsKeyPressed('Z', false)) {
-				debugMode ? debugMode = false : debugMode = true;
+			if (shared::IsKeyPressed('L', false) && debugMode) {
+				windowOpened ? windowOpened = false : windowOpened = true;
 			}
 		};
 	}
@@ -42,8 +42,13 @@ public:
 
 void gui::RenderWindow()
 {
-	if (debugMode) {
-		ImGui::Begin("Debug");
+	if (windowOpened && debugMode) {
+
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.WindowPadding = ImVec2(8, 8); 
+		style.WindowRounding = 4.0f; 
+
+		ImGui::Begin("Debug - Toggle with L", nullptr, ImGuiWindowFlags_None);
 
 		ImGui::Text("Bodies");
 		if (ImGui::BeginTabBar("Costumes")) {
@@ -85,10 +90,8 @@ void gui::RenderWindow()
 		}
 		
 		ImGui::Text("\n");
-		ImGui::Value("Body Json Index", bodyJsonIndex);
-		ImGui::Value("Blademode Type", blademodetype);
 		if (pCurrentCostume) {
-			ImGui::Value("currentPlSkin", **pCurrentCostume);
+			ImGui::Value("Current Costume ID", **pCurrentCostume);
 		}
 
 		ImGui::End();

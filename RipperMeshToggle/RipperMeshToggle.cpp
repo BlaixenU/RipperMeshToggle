@@ -78,6 +78,7 @@ int bodyModelIndex;
 bool resizeUp;
 int blademodetype;
 int** pCurrentCostume;
+bool debugMode;
 
 bool fileExists(const std::string& filename) {
 	std::ifstream file(filename);
@@ -207,7 +208,9 @@ void mainInit() {
 		int indexB = 0;
 		int indexA = 0;
 
-		for (indexA = 0; indexA < jsonFile.size(); ++indexA) { // add try-catch statement to this for value access error
+		debugMode = jsonFile["DebugMode"];
+
+		for (indexA = 0; indexA < (jsonFile.size() - 1); ++indexA) { // add try-catch statement to this for value access error
 			 
 			std::string bodyPlusIndexA = "Body" + std::to_string(indexA);
 			 
