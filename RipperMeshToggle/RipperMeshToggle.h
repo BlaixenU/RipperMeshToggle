@@ -6,23 +6,19 @@ extern void ripperInit();
 extern void ripperTick();
 extern void ripperReinit();
 
+extern struct Part {
+	bool toggleInRipper = false;
+	bool hideInNormal = false;
+	bool hideInRipper = false;
+};
+extern Part Hair[12], Sheath[12], Visor[12], Head[12];
+
 extern int targetBody[12];
 extern float resizeFactor[12];
+extern bool visorBypass[12];
 
 extern bool resetSize[12];
 extern float resetSizeRate[12];
-
-extern bool IncludeHair[12];
-extern bool IncludeSheath[12];
-extern bool IncludeVisor[12];
-extern bool IncludeHead[12];
-extern bool IncludeMainWeapon[12];
-extern bool IncludeUniqueWeapon[12];
-
-extern bool HideHair[12];
-extern bool HideSheath[12];
-extern bool HideVisor[12];
-extern bool HideHead[12];
 
 extern int MainWeaponIndex[8][12];
 
@@ -40,3 +36,4 @@ extern int blademodetype;
 extern int bodyJsonIndex;
 extern int** pCurrentCostume;
 extern bool debugMode;
+extern int currentPhase;

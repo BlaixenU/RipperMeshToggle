@@ -22,15 +22,12 @@
 #include <shared.h>
 #include <Hw.h>
 #include "d3dx9.h"
-#include "cWeaponSelectMenu.h"
 #include "cObj.h"
 #include <BehaviorEmBase.h>
 #include <EmBaseDLC.h>
 #include <iostream>
-#include <sstream>
 #include <XInput.h>
 #include <format>
-#include <Entity.h>
 #include "IniReader.h"
 #include "json.hpp"
 #include <vector>
@@ -39,7 +36,18 @@
 using json = nlohmann::json;
 namespace fs = std::filesystem;
  
+struct Part {
+	bool toggleInRipper = false;
+	bool hideInNormal = false;
+	bool hideInRipper = false;
+};
+
 // json allocations
+
+Part Hair[12];
+Part Sheath[12];
+Part Visor[12];
+Part Head[12];
 
 int targetBody[12];
 float resizeFactor[12];
@@ -47,21 +55,12 @@ float resizeFactor[12];
 bool resetSize[12];
 float resetSizeRate[12];
 
-bool IncludeHair[12];
-bool IncludeSheath[12];
-bool IncludeVisor[12];
-bool IncludeHead[12];
-bool IncludeMainWeapon[12];
-bool IncludeUniqueWeapon[12];
-
-bool HideHair[12];
-bool HideSheath[12];
-bool HideVisor[12];
-bool HideHead[12];
+bool visorBypass[12];
 
 int MainWeaponIndex[8][12];
 
 int UniqueWeaponIndex[3][12];
+
 
 // not json allocations
 
@@ -79,6 +78,59 @@ bool resizeUp;
 int blademodetype;
 int** pCurrentCostume;
 bool debugMode;
+int currentPhase;
+
+inline void initializePartByIndex(json jsonFile, std::string part, int index) {
+
+	std::string bodyIndex = "Body" + std::to_string(index);
+
+	if (jsonFile[bodyIndex].contains(part)) {
+		if (part == "Hair") {
+			if (jsonFile[bodyIndex]["Hair"].contains("ToggleInRipper")) {
+				Hair[index].toggleInRipper = jsonFile[bodyIndex]["Hair"]["ToggleInRipper"];
+			}
+			if (jsonFile[bodyIndex][part].contains("HideInNormal")) {
+				Hair[index].hideInNormal = jsonFile[bodyIndex]["Hair"]["HideInNormal"];
+			}
+			if (jsonFile[bodyIndex][part].contains("HideInRipper")) {
+				Hair[index].hideInRipper = jsonFile[bodyIndex]["Hair"]["HideInRipper"];
+			}
+		}
+		else if (part == "Sheath") {
+			if (jsonFile[bodyIndex]["Sheath"].contains("ToggleInRipper")) {
+				Sheath[index].toggleInRipper = jsonFile[bodyIndex]["Sheath"]["ToggleInRipper"];
+			}
+			if (jsonFile[bodyIndex][part].contains("HideInNormal")) {
+				Sheath[index].hideInNormal = jsonFile[bodyIndex]["Sheath"]["HideInNormal"];
+			}
+			if (jsonFile[bodyIndex][part].contains("HideInRipper")) {
+				Sheath[index].hideInRipper = jsonFile[bodyIndex]["Sheath"]["HideInRipper"];
+			}
+		}
+		else if (part == "Visor") {
+			if (jsonFile[bodyIndex]["Visor"].contains("ToggleInRipper")) {
+				Visor[index].toggleInRipper = jsonFile[bodyIndex]["Visor"]["ToggleInRipper"];
+			}
+			if (jsonFile[bodyIndex][part].contains("HideInNormal")) {
+				Visor[index].hideInNormal = jsonFile[bodyIndex]["Visor"]["HideInNormal"];
+			}
+			if (jsonFile[bodyIndex][part].contains("HideInRipper")) {
+				Visor[index].hideInRipper = jsonFile[bodyIndex]["Visor"]["HideInRipper"];
+			}
+		}
+		else if (part == "Head") {
+			if (jsonFile[bodyIndex]["Head"].contains("ToggleInRipper")) {
+				Head[index].toggleInRipper = jsonFile[bodyIndex]["Head"]["ToggleInRipper"];
+			}
+			if (jsonFile[bodyIndex][part].contains("HideInNormal")) {
+				Head[index].hideInNormal = jsonFile[bodyIndex]["Head"]["HideInNormal"];
+			}
+			if (jsonFile[bodyIndex][part].contains("HideInRipper")) {
+				Head[index].hideInRipper = jsonFile[bodyIndex]["Head"]["HideInRipper"];
+			}
+		}
+	}
+}
 
 bool fileExists(const std::string& filename) {
 	std::ifstream file(filename);
@@ -97,22 +149,45 @@ template <typename type> bool inArray(type array[], int size, type target) {
 	return false;
 }
 
-inline void updateBodyPart(Behavior* Part, bool IncludePart, bool HidePart, bool inRipperMode) {
+inline void updateBodyPart(Behavior* BehaviorPart, Part StructPart, bool inRipperMode) {
 
-	if (IncludePart) {
-		if (HidePart) {
-			if (inRipperMode) {
-				Part->disableRender();
-			}
-			else {
-				Part->enableRender();
-			}
+	//if (IncludePart) {
+	//	if (HidePart) {
+	//		if (inRipperMode) {
+	//			Part->disableRender();
+	//		}
+	//		else {
+	//			Part->enableRender();
+	//		}
+	//	}
+	//	else {
+	//		Part->toggleAnyMesh("normal", !inRipperMode);
+	//		Part->toggleAnyMesh("ripper", inRipperMode);
+	//	}
+	//}
+
+	if (inRipperMode) {
+		if (StructPart.hideInRipper) {
+			BehaviorPart->disableRender();
 		}
 		else {
-			Part->toggleAnyMesh("normal", !inRipperMode);
-			Part->toggleAnyMesh("ripper", inRipperMode);
+			BehaviorPart->enableRender();
+		}
+		
+		if (StructPart.toggleInRipper && !StructPart.hideInRipper) {
+			BehaviorPart->toggleAnyMesh("normal", !inRipperMode);
+			BehaviorPart->toggleAnyMesh("ripper", inRipperMode);
 		}
 	}
+	else {
+		if (StructPart.hideInNormal) {
+			BehaviorPart->disableRender();
+		}
+		else {
+			BehaviorPart->enableRender();
+		}
+	}
+
 }
 
 inline void updateBody() {
@@ -123,22 +198,22 @@ inline void updateBody() {
 	{
 		bool inRipperMode = player->m_nRipperModeEnabled;
 
-		Behavior* Hair = nullptr; 
-		Behavior* Sheath = nullptr; 
-		Behavior* Visor = nullptr; 
-		Behavior* Head = nullptr;
+		Behavior* bHair = nullptr; 
+		Behavior* bSheath = nullptr; 
+		Behavior* bVisor = nullptr; 
+		Behavior* bHead = nullptr;
 
 		if (Entity* entity = player->m_HairHandle.getEntity(); entity)
-			Hair = (Behavior*)entity->m_pInstance;
+			bHair = (Behavior*)entity->m_pInstance;
 
 		if (Entity* entity = player->m_SheathHandle.getEntity(); entity)
-			Sheath = (Behavior*)entity->m_pInstance;
+			bSheath = (Behavior*)entity->m_pInstance;
 
 		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity)
-			Visor = (Behavior*)entity->m_pInstance;
+			bVisor = (Behavior*)entity->m_pInstance;
 
 		if (Entity* entity = player->m_FaceHandle.getEntity(); entity)
-			Head = (Behavior*)entity->m_pInstance;
+			bHead = (Behavior*)entity->m_pInstance;
 
 		// make this toggleAnyMesh code more clamplicated, gotta make dt for weapons 
 
@@ -147,19 +222,19 @@ inline void updateBody() {
 
 
 		if (Hair) {
-			updateBodyPart(Hair, IncludeHair, HideHair, inRipperMode);
+			updateBodyPart(bHair, Hair[bodyJsonIndex], inRipperMode);
 		}
 
 		if (Sheath) {
-			updateBodyPart(Sheath, IncludeSheath, HideSheath, inRipperMode);
+			updateBodyPart(bSheath, Sheath[bodyJsonIndex], inRipperMode);
 		}
 
 		if (Visor) {
-			updateBodyPart(Visor, IncludeVisor, HideVisor, inRipperMode);
+			updateBodyPart(bVisor, Visor[bodyJsonIndex], inRipperMode);
 		}
 
 		if (Head) {
-			updateBodyPart(Head, IncludeHead, HideHead, inRipperMode);
+			updateBodyPart(bHead, Head[bodyJsonIndex], inRipperMode);
 		}
 	}
 }
@@ -215,11 +290,13 @@ void mainInit() {
 			std::string bodyPlusIndexA = "Body" + std::to_string(indexA);
 			 
 			targetBody[indexA] = jsonFile[bodyPlusIndexA]["ModelIndex"];
+			// visorBypass[indexA] = jsonFile[bodyPlusIndexA]["ShowVisorAtArmstrong"];
+
 			resizeFactor[indexA] = jsonFile[bodyPlusIndexA]["RipperSize"];
 			resetSize[indexA] = jsonFile[bodyPlusIndexA]["ResetSizeInQTE"];
 			resetSizeRate[indexA] = jsonFile[bodyPlusIndexA]["ResetSizeRate"];
 
-			IncludeHair[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Hair"];
+			/*IncludeHair[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Hair"];
 			IncludeSheath[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Sheath"];
 			IncludeVisor[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Visor"];
 			IncludeHead[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Head"];
@@ -229,7 +306,12 @@ void mainInit() {
 			HideHair[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Hair"];
 			HideSheath[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Sheath"];
 			HideVisor[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Visor"];
-			HideHead[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Head"];
+			HideHead[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Head"];*/
+
+			initializePartByIndex(jsonFile, "Hair", indexA);
+			initializePartByIndex(jsonFile, "Sheath", indexA);
+			initializePartByIndex(jsonFile, "Visor", indexA);
+			initializePartByIndex(jsonFile, "Head", indexA);
 
 			for (indexB = 0; indexB < jsonFile[bodyPlusIndexA]["MainWeaponIndex"].size(); ++indexB) {
 				MainWeaponIndex[indexA][indexB] = jsonFile[bodyPlusIndexA]["MainWeaponIndex"][indexB];
@@ -248,8 +330,22 @@ void mainInit() {
 void ripperInit() {
 
 	Pl0000* player = cGameUIManager::Instance.m_pPlayer;
+	
+	int*& gScenarioManagerImplement = *(int**)(shared::base + 0x17E9A30);
+
+	if (gScenarioManagerImplement && gScenarioManagerImplement[45]) {
+
+		currentPhase = *(int*)(gScenarioManagerImplement[45] + 4);
+	};
+
 
 	if (player) {
+
+		Behavior* Visor = nullptr;
+
+		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity) {
+			Visor = (Behavior*)entity->m_pInstance;
+		}
 
 		int*& currentPlSkin = *(int**)(shared::base + 0x17EA01C);
 
@@ -280,32 +376,11 @@ void ripperTick() {
 
 	if (player) {
 
-		Behavior* Hair = nullptr;
-		Behavior* Sheath = nullptr;
 		Behavior* Visor = nullptr;
-		Behavior* Head = nullptr;
-		Behavior* MainWeapon = nullptr;
-		Behavior* UniqueWeapon = nullptr;
 
-		if (Entity* entity = player->m_HairHandle.getEntity(); entity)
-			Hair = (Behavior*)entity->m_pInstance;
-
-		if (Entity* entity = player->m_SheathHandle.getEntity(); entity)
-			Sheath = (Behavior*)entity->m_pInstance;
-
-		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity)
+		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity) {
 			Visor = (Behavior*)entity->m_pInstance;
-
-		if (Entity* entity = player->m_FaceHandle.getEntity(); entity)
-			Head = (Behavior*)entity->m_pInstance;
-
-		if (Entity* entity = player->m_SwordHandle.getEntity(); entity)
-			MainWeapon = (Behavior*)entity->m_pInstance;
-
-		if (Entity* entity = player->field_FF8.getEntity(); entity)
-			UniqueWeapon = (Behavior*)entity->m_pInstance;
-
-		// replace field_FF8 with m_CustomWeaponHandle once SDK updates
+		}
 
 		int*& currentPlSkin = *(int**)(shared::base + 0x17EA01C);
 		pCurrentCostume = &currentPlSkin;
@@ -339,7 +414,6 @@ void ripperTick() {
 					}
 				}
 
-
 				if (resetSize[bodyJsonIndex]) {
 					if (Trigger::StaFlags.STA_QTE || player->m_nBladeModeType == 8) {
 						player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
@@ -369,6 +443,7 @@ void ripperTick() {
 						}
 					}
 				}
+
 			}
 		}
 		else {

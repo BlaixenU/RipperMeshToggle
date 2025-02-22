@@ -39,14 +39,19 @@ public:
 	}
 } plugin;
 
+inline void renderStruct(Part Part, const char* Name) {
+	if (ImGui::CollapsingHeader(Name)) {
+
+		ImGui::Value("ToggleInRipper", Part.toggleInRipper);
+		ImGui::Value("HideInNormal", Part.hideInNormal);
+		ImGui::Value("HideInRipper", Part.hideInRipper);
+
+	}
+}
 
 void gui::RenderWindow()
 {
 	if (windowOpened && debugMode) {
-
-		ImGuiStyle& style = ImGui::GetStyle();
-		style.WindowPadding = ImVec2(8, 8); 
-		style.WindowRounding = 4.0f; 
 
 		ImGui::Begin("Debug - Toggle with L", nullptr, ImGuiWindowFlags_None);
 
@@ -58,30 +63,21 @@ void gui::RenderWindow()
 				const char* bodyIndex = bruh.c_str();
 
 				if (ImGui::BeginTabItem(bodyIndex)) {
-					ImGui::Value("targetBody", targetBody[index]);
-					ImGui::Value("resizeFactor", resizeFactor[index]);
 
 					ImGui::Text("\n");
 
+					ImGui::Value("targetBody", targetBody[index]);
+					ImGui::Value("resizeFactor", resizeFactor[index]);
+					ImGui::Value("visorBypass", visorBypass[index]);
 					ImGui::Value("resetSize", resetSize[index]);
 					ImGui::Value("resetSizeRate", resetSizeRate[index]);
 
 					ImGui::Text("\n");
 
-					ImGui::Value("IncludeHair", IncludeHair[index]);
-					ImGui::Value("IncludeSheath", IncludeSheath[index]);
-					ImGui::Value("IncludeVisor", IncludeVisor[index]);
-					ImGui::Value("IncludeHead", IncludeHead[index]);
-					ImGui::Value("IncludeMainWeapon", IncludeMainWeapon[index]);
-					ImGui::Value("IncludeUniqueWeapon", IncludeUniqueWeapon[index]);
-					
-					ImGui::Text("\n");
-
-
-					ImGui::Value("HideHair", HideHair[index]);
-					ImGui::Value("HideSheath", HideSheath[index]);
-					ImGui::Value("HideVisor", HideVisor[index]);
-					ImGui::Value("HideHead", HideHead[index]);
+					renderStruct(Hair[index], "Hair");
+					renderStruct(Sheath[index], "Sheath");
+					renderStruct(Visor[index], "Visor");
+					renderStruct(Head[index], "Head");
 
 					ImGui::EndTabItem();
 				}
@@ -92,6 +88,9 @@ void gui::RenderWindow()
 		ImGui::Text("\n");
 		if (pCurrentCostume) {
 			ImGui::Value("Current Costume ID", **pCurrentCostume);
+		}
+		if (currentPhase) {
+			ImGui::Value("Current Phase", currentPhase);
 		}
 
 		ImGui::End();
