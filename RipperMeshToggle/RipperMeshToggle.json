@@ -1,11 +1,17 @@
 {
   "DebugMode": true,
+
   "Body0": {
-    "ModelIndex": 69648,
+
+    "CostumeIndex": 69648,
+
+    "ToggleBodyInRipper": true,
 
     "RipperSize": 1.25,
     "ResetSizeInQTE": true,
     "ResetSizeRate": 0.01,
+
+    "ShowVisorAtArmstrong": true,
 
     "Hair": {
       "ToggleInRipper": false,
@@ -35,11 +41,16 @@
     "UniqueWeaponIndex": [ 0 ]
   },
   "Body1": {
-    "ModelIndex": 69680,
+
+    "CostumeIndex": 69680,
+
+    "ToggleBodyInRipper": true,
 
     "RipperSize": 1.0,
     "ResetSizeInQTE": false,
     "ResetSizeRate": 0.01,
+
+    "ShowVisorAtArmstrong": true,
 
     "Hair": {
       "ToggleInRipper": false,
@@ -49,14 +60,37 @@
 
     "Visor": {
       "ToggleInRipper": false,
-      "HideInNormal": true,
-      "HideInRipper": true
+      "HideInNormal": false,
+      "HideInRipper": true,
+
+      "VisorEnabledInNormal": false,
+      "VisorEnabledInRipper": true
     },
 
     "Head": {
       "ToggleInRipper": false,
       "HideInNormal": false,
       "HideInRipper": true
+    },
+
+    "MainWeaponIndex": [ 0 ],
+    "UniqueWeaponIndex": [ 0 ]
+  },
+  "Body2": {
+
+    "CostumeIndex": 69696,
+
+    "ToggleBodyInRipper": false,
+
+    "RipperSize": 1.0,
+    "ResetSizeInQTE": false,
+    "ResetSizeRate": 0.01,
+
+    "ShowVisorAtArmstrong": true,
+
+    "Visor": {
+      "VisorEnabledInNormal": false,
+      "VisorEnabledInRipper": true
     },
 
     "MainWeaponIndex": [ 0 ],

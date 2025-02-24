@@ -36,26 +36,45 @@
 using json = nlohmann::json;
 namespace fs = std::filesystem;
  
+struct BodyStruct {
+	int targetBody = 0;
+
+	bool toggleInRipper = true;
+
+	float resizeFactor = 1.f;
+	bool resetSize = false;
+	float resetSizeRate = 0.01f;
+
+	bool showVisorAtArmstrong = true;
+};
+
+BodyStruct Body[12];
+
 struct Part {
 	bool toggleInRipper = false;
 	bool hideInNormal = false;
 	bool hideInRipper = false;
 };
 
+struct VisorPart : Part {
+	bool visorEnabledInRipper = false;
+	bool visorEnabledInNormal = false;
+};
+
 // json allocations
 
 Part Hair[12];
 Part Sheath[12];
-Part Visor[12];
+VisorPart Visor[12];
 Part Head[12];
 
-int targetBody[12];
-float resizeFactor[12];
-
-bool resetSize[12];
-float resetSizeRate[12];
-
-bool visorBypass[12];
+//int targetBody[12];
+//float resizeFactor[12];
+//
+//bool resetSize[12];
+//float resetSizeRate[12];
+//
+//bool visorBypass[12];
 
 int MainWeaponIndex[8][12];
 
@@ -74,11 +93,16 @@ int i;
 int num;
 bool check = false;
 int bodyModelIndex;
-bool resizeUp;
 int blademodetype;
+int remainingUpdates;
+
 int** pCurrentCostume;
 bool debugMode;
 int currentPhase;
+bool hairExists = false;
+bool sheathExists = false;
+bool visorExists = false;
+bool headExists = false;
 
 inline void initializePartByIndex(json jsonFile, std::string part, int index) {
 
@@ -117,6 +141,13 @@ inline void initializePartByIndex(json jsonFile, std::string part, int index) {
 			if (jsonFile[bodyIndex][part].contains("HideInRipper")) {
 				Visor[index].hideInRipper = jsonFile[bodyIndex]["Visor"]["HideInRipper"];
 			}
+
+			if (jsonFile[bodyIndex][part].contains("VisorEnabledInRipper")) {
+				Visor[index].visorEnabledInRipper = jsonFile[bodyIndex]["Visor"]["VisorEnabledInRipper"];
+			}
+			if (jsonFile[bodyIndex][part].contains("VisorEnabledInNormal")) {
+				Visor[index].visorEnabledInNormal = jsonFile[bodyIndex]["Visor"]["VisorEnabledInNormal"];
+			}
 		}
 		else if (part == "Head") {
 			if (jsonFile[bodyIndex]["Head"].contains("ToggleInRipper")) {
@@ -139,10 +170,10 @@ bool fileExists(const std::string& filename) {
 
 void dummy() {};
 
-template <typename type> bool inArray(type array[], int size, type target) {
+bool currentCostumeInJson(int currentPlSkin) {
 
-	for (auto index = 0; index < size; index++) {
-		if (array[index] == target) {
+	for (auto i = 0; i < 12; ++i) {
+		if (Body[i].targetBody == currentPlSkin) {
 			return true;
 		}
 	}
@@ -151,32 +182,16 @@ template <typename type> bool inArray(type array[], int size, type target) {
 
 inline void updateBodyPart(Behavior* BehaviorPart, Part StructPart, bool inRipperMode) {
 
-	//if (IncludePart) {
-	//	if (HidePart) {
-	//		if (inRipperMode) {
-	//			Part->disableRender();
-	//		}
-	//		else {
-	//			Part->enableRender();
-	//		}
-	//	}
-	//	else {
-	//		Part->toggleAnyMesh("normal", !inRipperMode);
-	//		Part->toggleAnyMesh("ripper", inRipperMode);
-	//	}
-	//}
-
 	if (inRipperMode) {
 		if (StructPart.hideInRipper) {
 			BehaviorPart->disableRender();
 		}
 		else {
 			BehaviorPart->enableRender();
-		}
-		
-		if (StructPart.toggleInRipper && !StructPart.hideInRipper) {
-			BehaviorPart->toggleAnyMesh("normal", !inRipperMode);
-			BehaviorPart->toggleAnyMesh("ripper", inRipperMode);
+			if (StructPart.toggleInRipper && !StructPart.hideInRipper) {
+				BehaviorPart->toggleAnyMesh("normal", !inRipperMode);
+				BehaviorPart->toggleAnyMesh("ripper", inRipperMode);
+			}
 		}
 	}
 	else {
@@ -185,17 +200,20 @@ inline void updateBodyPart(Behavior* BehaviorPart, Part StructPart, bool inRippe
 		}
 		else {
 			BehaviorPart->enableRender();
-		}
+			if (StructPart.toggleInRipper && !StructPart.hideInRipper) {
+				BehaviorPart->toggleAnyMesh("normal", !inRipperMode);
+				BehaviorPart->toggleAnyMesh("ripper", inRipperMode);
+			}
+		}                                   
 	}
-
 }
 
 inline void updateBody() {
 
 	Pl0000* player = cGameUIManager::Instance.m_pPlayer;
 
-	if (player)
-	{
+	if (player) {
+
 		bool inRipperMode = player->m_nRipperModeEnabled;
 
 		Behavior* bHair = nullptr; 
@@ -203,38 +221,67 @@ inline void updateBody() {
 		Behavior* bVisor = nullptr; 
 		Behavior* bHead = nullptr;
 
-		if (Entity* entity = player->m_HairHandle.getEntity(); entity)
+		if (Entity* entity = player->m_HairHandle.getEntity(); entity) {
 			bHair = (Behavior*)entity->m_pInstance;
+		}
 
-		if (Entity* entity = player->m_SheathHandle.getEntity(); entity)
+		if (Entity* entity = player->m_SheathHandle.getEntity(); entity) {
 			bSheath = (Behavior*)entity->m_pInstance;
+		}
 
-		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity)
+		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity) {
 			bVisor = (Behavior*)entity->m_pInstance;
+		}
 
-		if (Entity* entity = player->m_FaceHandle.getEntity(); entity)
+		if (Entity* entity = player->m_FaceHandle.getEntity(); entity) {
 			bHead = (Behavior*)entity->m_pInstance;
+		}
 
 		// make this toggleAnyMesh code more clamplicated, gotta make dt for weapons 
 
-		player->toggleAnyMesh("normal", !inRipperMode);
-		player->toggleAnyMesh("ripper", inRipperMode);
+		if (Body[bodyJsonIndex].toggleInRipper) {
+			player->toggleAnyMesh("normal", !inRipperMode);
+			player->toggleAnyMesh("ripper", inRipperMode);
+		}
 
 
-		if (Hair) {
+		if (bHair) {
 			updateBodyPart(bHair, Hair[bodyJsonIndex], inRipperMode);
+			hairExists = true;
 		}
 
-		if (Sheath) {
+		if (bSheath) {
 			updateBodyPart(bSheath, Sheath[bodyJsonIndex], inRipperMode);
+			sheathExists = true;
 		}
 
-		if (Visor) {
-			updateBodyPart(bVisor, Visor[bodyJsonIndex], inRipperMode);
+		if (bVisor) {
+			visorExists = true;
+			if ((currentPhase == 0x750) || (currentPhase == 0x740)) {
+				if (Body[bodyJsonIndex].showVisorAtArmstrong) {
+					updateBodyPart(bVisor, Visor[bodyJsonIndex], inRipperMode);
+				}
+				else {
+					bVisor->disableRender();
+				}
+			}
+			else { 
+				updateBodyPart(bVisor, Visor[bodyJsonIndex], inRipperMode);
+			}
+			
+			if (!inRipperMode) {
+				Visor[bodyJsonIndex].visorEnabledInNormal ? Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 1
+					                                      : Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 0;
+			}
+			else {
+				Visor[bodyJsonIndex].visorEnabledInRipper ? Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 1
+					                                      : Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 0;
+			} 
 		}
 
-		if (Head) {
+		if (bHead) {
 			updateBodyPart(bHead, Head[bodyJsonIndex], inRipperMode);
+			headExists = true;
 		}
 	}
 }
@@ -285,28 +332,29 @@ void mainInit() {
 
 		debugMode = jsonFile["DebugMode"];
 
-		for (indexA = 0; indexA < (jsonFile.size() - 1); ++indexA) { // add try-catch statement to this for value access error
+		for (indexA = 0; indexA < (jsonFile.size() - 1); ++indexA) { 
 			 
 			std::string bodyPlusIndexA = "Body" + std::to_string(indexA);
 			 
-			targetBody[indexA] = jsonFile[bodyPlusIndexA]["ModelIndex"];
-			// visorBypass[indexA] = jsonFile[bodyPlusIndexA]["ShowVisorAtArmstrong"];
+			Body[indexA].targetBody = jsonFile[bodyPlusIndexA]["CostumeIndex"];
 
-			resizeFactor[indexA] = jsonFile[bodyPlusIndexA]["RipperSize"];
-			resetSize[indexA] = jsonFile[bodyPlusIndexA]["ResetSizeInQTE"];
-			resetSizeRate[indexA] = jsonFile[bodyPlusIndexA]["ResetSizeRate"];
+			if (jsonFile[bodyPlusIndexA].contains("ToggleBodyInRipper")) {
+				Body[indexA].toggleInRipper = jsonFile[bodyPlusIndexA]["ToggleBodyInRipper"];
+			}
 
-			/*IncludeHair[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Hair"];
-			IncludeSheath[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Sheath"];
-			IncludeVisor[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Visor"];
-			IncludeHead[indexA] = jsonFile[bodyPlusIndexA]["Include"]["Head"];
-			IncludeMainWeapon[indexA] = jsonFile[bodyPlusIndexA]["Include"]["MainWeapon"];
-			IncludeUniqueWeapon[indexA] = jsonFile[bodyPlusIndexA]["Include"]["UniqueWeapon"];
+			if (jsonFile[bodyPlusIndexA].contains("RipperSize")) {
+				Body[indexA].resizeFactor = jsonFile[bodyPlusIndexA]["RipperSize"];
+			}
+			if (jsonFile[bodyPlusIndexA].contains("ResetSizeInQTE")) {
+				Body[indexA].resetSize = jsonFile[bodyPlusIndexA]["ResetSizeInQTE"];
+			}
+			if (jsonFile[bodyPlusIndexA].contains("ResetSizeRate")) {
+				Body[indexA].resetSizeRate = jsonFile[bodyPlusIndexA]["ResetSizeRate"];
+			}
 
-			HideHair[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Hair"];
-			HideSheath[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Sheath"];
-			HideVisor[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Visor"];
-			HideHead[indexA] = jsonFile[bodyPlusIndexA]["Hide"]["Head"];*/
+			if (jsonFile[bodyPlusIndexA].contains("ShowVisorAtArmstrong")) {
+				Body[indexA].showVisorAtArmstrong = jsonFile[bodyPlusIndexA]["ShowVisorAtArmstrong"];
+			}
 
 			initializePartByIndex(jsonFile, "Hair", indexA);
 			initializePartByIndex(jsonFile, "Sheath", indexA);
@@ -350,12 +398,12 @@ void ripperInit() {
 		int*& currentPlSkin = *(int**)(shared::base + 0x17EA01C);
 
 		for (int index = 0; index < 12; ++index) {
-			if (targetBody[index] == *currentPlSkin) {
+			if (Body[index].targetBody == *currentPlSkin) {
 				bodyJsonIndex = index;
 			}
 		}
 
-		if (inArray<int>(targetBody, 12, *currentPlSkin)) {
+		if (currentCostumeInJson(*currentPlSkin)) {
 
 			updateBody();
 
@@ -364,6 +412,10 @@ void ripperInit() {
 			ripperSwitch = false;
 
 			hasInitialized = true;
+
+			if ((currentPhase == 0x750) || (currentPhase == 0x740)) {
+				remainingUpdates = 5;
+			}
 		}
 	}
 
@@ -376,12 +428,6 @@ void ripperTick() {
 
 	if (player) {
 
-		Behavior* Visor = nullptr;
-
-		if (Entity* entity = player->m_HelmetHandle.getEntity(); entity) {
-			Visor = (Behavior*)entity->m_pInstance;
-		}
-
 		int*& currentPlSkin = *(int**)(shared::base + 0x17EA01C);
 		pCurrentCostume = &currentPlSkin;
 
@@ -390,7 +436,7 @@ void ripperTick() {
 
 		if (hasInitialized) {
 
-			if (*currentPlSkin == targetBody[bodyJsonIndex]) {
+			if (*currentPlSkin == Body[bodyJsonIndex].targetBody) {
 
 				if (player->m_nRipperModeEnabled && !ripperSwitch) {
 
@@ -398,11 +444,9 @@ void ripperTick() {
 
 					updateBody();
 
-					player->setSize({ resizeFactor[bodyJsonIndex], resizeFactor[bodyJsonIndex], resizeFactor[bodyJsonIndex], 1.0f });
+					player->setSize({ Body[bodyJsonIndex].resizeFactor, Body[bodyJsonIndex].resizeFactor, Body[bodyJsonIndex].resizeFactor, 1.0f});
 				}
-				else {
-
-					if (!player->m_nRipperModeEnabled && ripperSwitch) {
+				else if (!player->m_nRipperModeEnabled && ripperSwitch) {
 
 						ripperSwitch = false;
 
@@ -411,10 +455,9 @@ void ripperTick() {
 						player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 						hasEnteredQTE = false;
-					}
 				}
 
-				if (resetSize[bodyJsonIndex]) {
+				if (Body[bodyJsonIndex].resetSize) {
 					if (Trigger::StaFlags.STA_QTE || player->m_nBladeModeType == 8) {
 						player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
 						resizeFactorEase = 1.f;
@@ -422,20 +465,20 @@ void ripperTick() {
 					}
 					else {
 						if (player->m_nRipperModeEnabled && hasEnteredQTE) {
-							if (resizeFactor[bodyJsonIndex] > 1.0f) {
-								if ((resizeFactorEase + resetSizeRate[bodyJsonIndex]) < resizeFactor[bodyJsonIndex]) {
-									resizeFactorEase += resetSizeRate[bodyJsonIndex];
+							if (Body[bodyJsonIndex].resizeFactor > 1.0f) {
+								if ((resizeFactorEase + Body[bodyJsonIndex].resetSizeRate) < Body[bodyJsonIndex].resizeFactor) {
+									resizeFactorEase += Body[bodyJsonIndex].resetSizeRate;
 								}
 								else {
-									resizeFactorEase = resizeFactor[bodyJsonIndex];
+									resizeFactorEase = Body[bodyJsonIndex].resizeFactor;
 								}
 							}
 							else {
-								if ((resizeFactorEase - resetSizeRate[bodyJsonIndex]) > resizeFactor[bodyJsonIndex]) {
-									resizeFactorEase -= resetSizeRate[bodyJsonIndex];
+								if ((resizeFactorEase - Body[bodyJsonIndex].resetSizeRate) > Body[bodyJsonIndex].resizeFactor) {
+									resizeFactorEase -= Body[bodyJsonIndex].resetSizeRate;
 								}
 								else {
-									resizeFactorEase = resizeFactor[bodyJsonIndex];
+									resizeFactorEase = Body[bodyJsonIndex].resizeFactor;
 								}
 							}
 
@@ -444,6 +487,10 @@ void ripperTick() {
 					}
 				}
 
+				if (remainingUpdates > 0) {
+					updateBody();
+					remainingUpdates -= 1;
+				}
 			}
 		}
 		else {

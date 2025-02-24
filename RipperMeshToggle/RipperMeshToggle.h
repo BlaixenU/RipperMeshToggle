@@ -6,19 +6,33 @@ extern void ripperInit();
 extern void ripperTick();
 extern void ripperReinit();
 
-extern struct Part {
+struct BodyStruct {
+	int targetBody = 0;
+
+	bool toggleInRipper = true;
+
+	float resizeFactor = 1.f;
+	bool resetSize = false;
+	float resetSizeRate = 0.01f;
+
+	bool showVisorAtArmstrong = true;
+};
+
+extern BodyStruct Body[12];
+
+struct Part {
 	bool toggleInRipper = false;
 	bool hideInNormal = false;
 	bool hideInRipper = false;
 };
-extern Part Hair[12], Sheath[12], Visor[12], Head[12];
 
-extern int targetBody[12];
-extern float resizeFactor[12];
-extern bool visorBypass[12];
+struct VisorPart : Part {
+	bool visorEnabledInRipper = false;
+	bool visorEnabledInNormal = false;
+};
 
-extern bool resetSize[12];
-extern float resetSizeRate[12];
+extern Part Hair[12], Sheath[12], Head[12];
+extern VisorPart Visor[12];
 
 extern int MainWeaponIndex[8][12];
 
@@ -37,3 +51,10 @@ extern int bodyJsonIndex;
 extern int** pCurrentCostume;
 extern bool debugMode;
 extern int currentPhase;
+
+extern bool hairExists;
+extern bool sheathExists;
+extern bool visorExists;
+extern bool headExists;
+
+extern const char* visorRenderLog;

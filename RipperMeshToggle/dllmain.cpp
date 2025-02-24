@@ -39,7 +39,7 @@ public:
 	}
 } plugin;
 
-inline void renderStruct(Part Part, const char* Name) {
+inline void renderPart(Part Part, const char* Name) {
 	if (ImGui::CollapsingHeader(Name)) {
 
 		ImGui::Value("ToggleInRipper", Part.toggleInRipper);
@@ -66,18 +66,32 @@ void gui::RenderWindow()
 
 					ImGui::Text("\n");
 
-					ImGui::Value("targetBody", targetBody[index]);
-					ImGui::Value("resizeFactor", resizeFactor[index]);
-					ImGui::Value("visorBypass", visorBypass[index]);
-					ImGui::Value("resetSize", resetSize[index]);
-					ImGui::Value("resetSizeRate", resetSizeRate[index]);
+					if (ImGui::CollapsingHeader("Body")) {
+						ImGui::Value("ModelIndex", Body[index].targetBody);
+						ImGui::Value("ToggleInRipper", Body[index].toggleInRipper);
+						ImGui::Value("RipperSize", Body[index].resizeFactor);
+						ImGui::Value("ResetSizeInQTE", Body[index].resetSize);
+						ImGui::Value("ResetSizeRate", Body[index].resetSizeRate);
+						ImGui::Value("ShowVisorAtArmstrong", Body[index].showVisorAtArmstrong);
+					}
 
 					ImGui::Text("\n");
 
-					renderStruct(Hair[index], "Hair");
-					renderStruct(Sheath[index], "Sheath");
-					renderStruct(Visor[index], "Visor");
-					renderStruct(Head[index], "Head");
+					renderPart(Hair[index], "Hair");
+					renderPart(Sheath[index], "Sheath");
+
+					if (ImGui::CollapsingHeader("Visor")) {
+
+						ImGui::Value("ToggleInRipper", Visor[index].toggleInRipper);
+						ImGui::Value("HideInNormal", Visor[index].hideInNormal);
+						ImGui::Value("HideInRipper", Visor[index].hideInRipper);
+						ImGui::Text("\n");
+						ImGui::Value("VisorEnabledInRipper", Visor[index].visorEnabledInRipper);
+						ImGui::Value("VisorEnabledInNormal", Visor[index].visorEnabledInNormal);
+
+					}
+
+					renderPart(Head[index], "Head");
 
 					ImGui::EndTabItem();
 				}
@@ -92,6 +106,15 @@ void gui::RenderWindow()
 		if (currentPhase) {
 			ImGui::Value("Current Phase", currentPhase);
 		}
+
+		ImGui::Text("\n");
+		ImGui::Text("Part Existence");
+		ImGui::Text("\n");
+		ImGui::Value("Hair Exists", hairExists);
+		ImGui::Value("Sheath Exists", sheathExists);
+		ImGui::Value("Visor Exists", visorExists);
+		ImGui::Value("Head Exists", headExists);
+		ImGui::Text("\n");
 
 		ImGui::End();
 	}
