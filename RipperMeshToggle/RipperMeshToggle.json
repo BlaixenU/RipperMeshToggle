@@ -5,13 +5,23 @@
 
     "CostumeIndex": 69648,
 
+    "ShowVisorAtArmstrong": true,
+
+    "WwiseEvents": {
+      "OnRipperEnter": [
+        "core_se_btl_datsu_crush",
+        "core_se_eng_spout_medium"
+      ],
+      "OnRipperExit": [
+        
+      ]
+    },
+
     "ToggleBodyInRipper": true,
 
     "RipperSize": 1.25,
     "ResetSizeInQTE": true,
     "ResetSizeRate": 0.01,
-
-    "ShowVisorAtArmstrong": true,
 
     "Hair": {
       "ToggleInRipper": false,
@@ -28,72 +38,15 @@
     "Visor": {
       "ToggleInRipper": false,
       "HideInNormal": false,
-      "HideInRipper": true
-    },
-
-    "Head": {
-      "ToggleInRipper": false,
-      "HideInNormal": false,
-      "HideInRipper": true
-    },
-
-    "MainWeaponIndex": [ 0 ],
-    "UniqueWeaponIndex": [ 0 ]
-  },
-  "Body1": {
-
-    "CostumeIndex": 69680,
-
-    "ToggleBodyInRipper": true,
-
-    "RipperSize": 1.0,
-    "ResetSizeInQTE": false,
-    "ResetSizeRate": 0.01,
-
-    "ShowVisorAtArmstrong": true,
-
-    "Hair": {
-      "ToggleInRipper": false,
-      "HideInNormal": false,
-      "HideInRipper": true
-    },
-
-    "Visor": {
-      "ToggleInRipper": false,
-      "HideInNormal": false,
       "HideInRipper": true,
-
-      "VisorEnabledInNormal": false,
-      "VisorEnabledInRipper": true
+      "VisorForceEnabledInRipper": false,
+      "VisorForceEnabledInNormal": false
     },
 
     "Head": {
       "ToggleInRipper": false,
       "HideInNormal": false,
       "HideInRipper": true
-    },
-
-    "MainWeaponIndex": [ 0 ],
-    "UniqueWeaponIndex": [ 0 ]
-  },
-  "Body2": {
-
-    "CostumeIndex": 69696,
-
-    "ToggleBodyInRipper": false,
-
-    "RipperSize": 1.0,
-    "ResetSizeInQTE": false,
-    "ResetSizeRate": 0.01,
-
-    "ShowVisorAtArmstrong": true,
-
-    "Visor": {
-      "VisorEnabledInNormal": false,
-      "VisorEnabledInRipper": true
-    },
-
-    "MainWeaponIndex": [ 0 ],
-    "UniqueWeaponIndex": [ 0 ]
+    }
   }
 }

@@ -45,10 +45,13 @@ struct BodyStruct {
 	bool resetSize = false;
 	float resetSizeRate = 0.01f;
 
-	bool showVisorAtArmstrong = true;
+	bool showVisorAtArmstrong = false;
 };
 
-BodyStruct Body[12];
+struct EventsStruct {
+	std::vector<std::string> exitEvents;
+	std::vector<std::string> enterEvents;
+} Events[12];
 
 struct Part {
 	bool toggleInRipper = false;
@@ -61,27 +64,17 @@ struct VisorPart : Part {
 	bool visorEnabledInNormal = false;
 };
 
-// json allocations
+BodyStruct Body[12];
 
 Part Hair[12];
 Part Sheath[12];
 VisorPart Visor[12];
 Part Head[12];
 
-//int targetBody[12];
-//float resizeFactor[12];
-//
-//bool resetSize[12];
-//float resetSizeRate[12];
-//
-//bool visorBypass[12];
-
 int MainWeaponIndex[8][12];
 
 int UniqueWeaponIndex[3][12];
 
-
-// not json allocations
 
 int bodyCount;
 int bodyJsonIndex;
@@ -98,11 +91,47 @@ int remainingUpdates;
 
 int** pCurrentCostume;
 bool debugMode;
-int currentPhase;
+int currentPhase = 1;
 bool hairExists = false;
 bool sheathExists = false;
 bool visorExists = false;
 bool headExists = false;
+int callCount = 0;
+
+//class {
+//public:
+//	int callEventSE(const char* se, int a2 = 0)
+//	{
+//		return ((int(__cdecl*)(const char* se, int a2))(shared::base + 0xA5E050))(se, a2);
+//	} //SE Events
+//
+//	static int __cdecl callEventSEATTR(const char* se, void* a2 = 0, int a3 = -1, int a4 = 0)
+//	{
+//		return ((int(_cdecl*)(const char*, void* a2, int a3, int a4))(shared::base + 0xA5E0C0))(se, a2, a3, a4);
+//	} // SE ATTR Events
+//
+//	void __cdecl callEventBGM(const char* event)
+//	{
+//		((void(__cdecl*)(const char*))(shared::base + 0xA5E1B0))(event);
+//	} //BGM Events
+//} eventFunctions;
+
+namespace Wwise {
+	int MGR_PlaySound(const char* se, int a2)
+	{
+		return ((int(__cdecl*)(const char* se, int a2))(shared::base + 0xA5E050))(se, a2);
+	} //SE Events
+
+	static int __cdecl PlaySound(const char* se, void* a2, int a3, int a4)
+	{
+		return ((int(_cdecl*)(const char*, void* a2, int a3, int a4))(shared::base + 0xA5E0C0))(se, a2, a3, a4);
+	} // SE ATTR Events
+
+	void __cdecl Se_PlayEvent(const char* event)
+	{
+		((void(__cdecl*)(const char*))(shared::base + 0xA5E1B0))(event);
+	} //BGM Events
+}
 
 inline void initializePartByIndex(json jsonFile, std::string part, int index) {
 
@@ -142,11 +171,11 @@ inline void initializePartByIndex(json jsonFile, std::string part, int index) {
 				Visor[index].hideInRipper = jsonFile[bodyIndex]["Visor"]["HideInRipper"];
 			}
 
-			if (jsonFile[bodyIndex][part].contains("VisorEnabledInRipper")) {
-				Visor[index].visorEnabledInRipper = jsonFile[bodyIndex]["Visor"]["VisorEnabledInRipper"];
+			if (jsonFile[bodyIndex][part].contains("VisorForceEnabledInRipper")) {
+				Visor[index].visorEnabledInRipper = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInRipper"];
 			}
-			if (jsonFile[bodyIndex][part].contains("VisorEnabledInNormal")) {
-				Visor[index].visorEnabledInNormal = jsonFile[bodyIndex]["Visor"]["VisorEnabledInNormal"];
+			if (jsonFile[bodyIndex][part].contains("VisorForceEnabledInNormal")) {
+				Visor[index].visorEnabledInNormal = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInNormal"];
 			}
 		}
 		else if (part == "Head") {
@@ -163,12 +192,15 @@ inline void initializePartByIndex(json jsonFile, std::string part, int index) {
 	}
 }
 
+
 bool fileExists(const std::string& filename) {
 	std::ifstream file(filename);
 	return file.good();
 }
 
+
 void dummy() {};
+
 
 bool currentCostumeInJson(int currentPlSkin) {
 
@@ -179,6 +211,7 @@ bool currentCostumeInJson(int currentPlSkin) {
 	}
 	return false;
 }
+
 
 inline void updateBodyPart(Behavior* BehaviorPart, Part StructPart, bool inRipperMode) {
 
@@ -207,6 +240,7 @@ inline void updateBodyPart(Behavior* BehaviorPart, Part StructPart, bool inRippe
 		}                                   
 	}
 }
+
 
 inline void updateBody() {
 
@@ -265,18 +299,18 @@ inline void updateBody() {
 					bVisor->disableRender();
 				}
 			}
-			else { 
+			else {
 				updateBodyPart(bVisor, Visor[bodyJsonIndex], inRipperMode);
 			}
-			
+
 			if (!inRipperMode) {
 				Visor[bodyJsonIndex].visorEnabledInNormal ? Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 1
-					                                      : Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 0;
+					: Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 0;
 			}
 			else {
 				Visor[bodyJsonIndex].visorEnabledInRipper ? Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 1
-					                                      : Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 0;
-			} 
+					: Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 0;
+			}
 		}
 
 		if (bHead) {
@@ -284,6 +318,16 @@ inline void updateBody() {
 			headExists = true;
 		}
 	}
+}
+
+
+inline void callEvents(std::vector<std::string>& eventList) {
+	for (auto it = eventList.rbegin(); it != eventList.rend(); ++it) {
+		Wwise::MGR_PlaySound(it->c_str(), 0);
+		Wwise::PlaySound(it->c_str(), 0, -1, 0);
+		Wwise::Se_PlayEvent(it->c_str());
+		callCount += 1;
+	} 
 }
 
 
@@ -310,7 +354,7 @@ void mainInit() {
 	json jsonFile;
 
 	if (fileExists(cwd)) {
-		jsonStream.open(cwd);  
+		jsonStream.open(cwd);
 	}
 
 	if (jsonStream) {
@@ -332,41 +376,59 @@ void mainInit() {
 
 		debugMode = jsonFile["DebugMode"];
 
-		for (indexA = 0; indexA < (jsonFile.size() - 1); ++indexA) { 
-			 
+		for (indexA = 0; indexA < (jsonFile.size()); ++indexA) {
+
 			std::string bodyPlusIndexA = "Body" + std::to_string(indexA);
-			 
-			Body[indexA].targetBody = jsonFile[bodyPlusIndexA]["CostumeIndex"];
 
-			if (jsonFile[bodyPlusIndexA].contains("ToggleBodyInRipper")) {
-				Body[indexA].toggleInRipper = jsonFile[bodyPlusIndexA]["ToggleBodyInRipper"];
-			}
+			if (jsonFile.contains(bodyPlusIndexA)) {
 
-			if (jsonFile[bodyPlusIndexA].contains("RipperSize")) {
-				Body[indexA].resizeFactor = jsonFile[bodyPlusIndexA]["RipperSize"];
-			}
-			if (jsonFile[bodyPlusIndexA].contains("ResetSizeInQTE")) {
-				Body[indexA].resetSize = jsonFile[bodyPlusIndexA]["ResetSizeInQTE"];
-			}
-			if (jsonFile[bodyPlusIndexA].contains("ResetSizeRate")) {
-				Body[indexA].resetSizeRate = jsonFile[bodyPlusIndexA]["ResetSizeRate"];
-			}
+				Body[indexA].targetBody = jsonFile[bodyPlusIndexA]["CostumeIndex"];
 
-			if (jsonFile[bodyPlusIndexA].contains("ShowVisorAtArmstrong")) {
-				Body[indexA].showVisorAtArmstrong = jsonFile[bodyPlusIndexA]["ShowVisorAtArmstrong"];
-			}
+				if (jsonFile[bodyPlusIndexA].contains("ToggleBodyInRipper")) {
+					Body[indexA].toggleInRipper = jsonFile[bodyPlusIndexA]["ToggleBodyInRipper"];
+				}
 
-			initializePartByIndex(jsonFile, "Hair", indexA);
-			initializePartByIndex(jsonFile, "Sheath", indexA);
-			initializePartByIndex(jsonFile, "Visor", indexA);
-			initializePartByIndex(jsonFile, "Head", indexA);
+				if (jsonFile[bodyPlusIndexA].contains("RipperSize")) {
+					Body[indexA].resizeFactor = jsonFile[bodyPlusIndexA]["RipperSize"];
+				}
+				if (jsonFile[bodyPlusIndexA].contains("ResetSizeInQTE")) {
+					Body[indexA].resetSize = jsonFile[bodyPlusIndexA]["ResetSizeInQTE"];
+				}
+				if (jsonFile[bodyPlusIndexA].contains("ResetSizeRate")) {
+					Body[indexA].resetSizeRate = jsonFile[bodyPlusIndexA]["ResetSizeRate"];
+				}
 
-			for (indexB = 0; indexB < jsonFile[bodyPlusIndexA]["MainWeaponIndex"].size(); ++indexB) {
-				MainWeaponIndex[indexA][indexB] = jsonFile[bodyPlusIndexA]["MainWeaponIndex"][indexB];
-			}
+				if (jsonFile[bodyPlusIndexA].contains("ShowVisorAtArmstrong")) {
+					Body[indexA].showVisorAtArmstrong = jsonFile[bodyPlusIndexA]["ShowVisorAtArmstrong"];
+				}
 
-			for (indexB = 0; indexB < jsonFile[bodyPlusIndexA]["UniqueWeaponIndex"].size(); ++indexB) {
-				UniqueWeaponIndex[indexA][indexB] = jsonFile[bodyPlusIndexA]["UniqueWeaponIndex"][indexB];
+				if (jsonFile[bodyPlusIndexA].contains("WwiseEvents")) {
+					if (jsonFile[bodyPlusIndexA]["WwiseEvents"].contains("OnRipperEnter")) {
+						for (int i = 0; i < (jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperEnter"].size()); i++) {
+							Events[indexA].enterEvents.push_back(jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperEnter"][i]);
+						}
+					}
+					if (jsonFile[bodyPlusIndexA]["WwiseEvents"].contains("OnRipperExit")) {
+						for (int i = 0; i < (jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperExit"].size()); i++) {
+							Events[indexA].exitEvents.push_back(jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperExit"][i]);
+						}
+					}
+				}
+
+				initializePartByIndex(jsonFile, "Hair", indexA);
+				initializePartByIndex(jsonFile, "Sheath", indexA);
+				initializePartByIndex(jsonFile, "Visor", indexA);
+				initializePartByIndex(jsonFile, "Head", indexA);
+
+
+
+				/*for (indexB = 0; indexB < jsonFile[bodyPlusIndexA]["MainWeaponIndex"].size(); ++indexB) {
+					MainWeaponIndex[indexA][indexB] = jsonFile[bodyPlusIndexA]["MainWeaponIndex"][indexB];
+				}
+
+				for (indexB = 0; indexB < jsonFile[bodyPlusIndexA]["UniqueWeaponIndex"].size(); ++indexB) {
+					UniqueWeaponIndex[indexA][indexB] = jsonFile[bodyPlusIndexA]["UniqueWeaponIndex"][indexB];
+				}*/
 			}
 		}
 
@@ -418,13 +480,13 @@ void ripperInit() {
 			}
 		}
 	}
-
 }
 
 
 void ripperTick() {
 
 	Pl0000* player = cGameUIManager::Instance.m_pPlayer;
+
 
 	if (player) {
 
@@ -444,6 +506,8 @@ void ripperTick() {
 
 					updateBody();
 
+					callEvents(Events[bodyJsonIndex].enterEvents);
+
 					player->setSize({ Body[bodyJsonIndex].resizeFactor, Body[bodyJsonIndex].resizeFactor, Body[bodyJsonIndex].resizeFactor, 1.0f});
 				}
 				else if (!player->m_nRipperModeEnabled && ripperSwitch) {
@@ -451,6 +515,8 @@ void ripperTick() {
 						ripperSwitch = false;
 
 						updateBody();
+
+						callEvents(Events[bodyJsonIndex].exitEvents);
 
 						player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
 

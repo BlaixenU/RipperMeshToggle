@@ -6,6 +6,13 @@ extern void ripperInit();
 extern void ripperTick();
 extern void ripperReinit();
 
+struct EventsStruct {
+	std::vector<std::string> exitEvents;
+	std::vector<std::string> enterEvents = { "a", "b", "c" };
+};
+
+extern EventsStruct Events[12];
+
 struct BodyStruct {
 	int targetBody = 0;
 
@@ -58,3 +65,5 @@ extern bool visorExists;
 extern bool headExists;
 
 extern const char* visorRenderLog;
+
+extern int callCount;

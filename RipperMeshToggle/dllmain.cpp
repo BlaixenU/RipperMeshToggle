@@ -45,7 +45,7 @@ inline void renderPart(Part Part, const char* Name) {
 		ImGui::Value("ToggleInRipper", Part.toggleInRipper);
 		ImGui::Value("HideInNormal", Part.hideInNormal);
 		ImGui::Value("HideInRipper", Part.hideInRipper);
-
+		ImGui::Text("\n");
 	}
 }
 
@@ -56,6 +56,8 @@ void gui::RenderWindow()
 		ImGui::Begin("Debug - Toggle with L", nullptr, ImGuiWindowFlags_None);
 
 		ImGui::Text("Bodies");
+		ImGui::Separator();
+
 		if (ImGui::BeginTabBar("Costumes")) {
 			for (int index = 0; index < 12; index++) {
 
@@ -64,6 +66,22 @@ void gui::RenderWindow()
 
 				if (ImGui::BeginTabItem(bodyIndex)) {
 
+					ImGui::Text("\n");
+
+					if (ImGui::CollapsingHeader("Events")) {
+						ImGui::Text("OnRipperEnter:");
+						for (auto it = Events[index].enterEvents.rbegin(); it != Events[index].enterEvents.rend(); ++it) {
+							ImGui::Text(it->c_str());
+						}
+						ImGui::Text("\n");
+						ImGui::Text("OnRipperEnter:");
+						for (auto it = Events[index].exitEvents.rbegin(); it != Events[index].exitEvents.rend(); ++it) {
+							ImGui::Text(it->c_str());
+						}
+					}
+
+					ImGui::Text("\n");
+					ImGui::Separator();
 					ImGui::Text("\n");
 
 					if (ImGui::CollapsingHeader("Body")) {
@@ -75,6 +93,7 @@ void gui::RenderWindow()
 						ImGui::Value("ShowVisorAtArmstrong", Body[index].showVisorAtArmstrong);
 					}
 
+					ImGui::Separator();
 					ImGui::Text("\n");
 
 					renderPart(Hair[index], "Hair");
@@ -88,7 +107,7 @@ void gui::RenderWindow()
 						ImGui::Text("\n");
 						ImGui::Value("VisorEnabledInRipper", Visor[index].visorEnabledInRipper);
 						ImGui::Value("VisorEnabledInNormal", Visor[index].visorEnabledInNormal);
-
+						ImGui::Text("\n");
 					}
 
 					renderPart(Head[index], "Head");
@@ -98,8 +117,11 @@ void gui::RenderWindow()
 			}
 			ImGui::EndTabBar();
 		}
-		
+
 		ImGui::Text("\n");
+		ImGui::Separator();
+		ImGui::Text("\n");
+
 		if (pCurrentCostume) {
 			ImGui::Value("Current Costume ID", **pCurrentCostume);
 		}
@@ -115,6 +137,7 @@ void gui::RenderWindow()
 		ImGui::Value("Visor Exists", visorExists);
 		ImGui::Value("Head Exists", headExists);
 		ImGui::Text("\n");
+		ImGui::Value("Event Call Count", callCount);
 
 		ImGui::End();
 	}
