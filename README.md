@@ -36,8 +36,6 @@ Aside from that, you have JSON objects for all extra bodyparts (Hair, Visor, She
 > [!TIP]
 > If you want to make it so a part is hidden when not in Ripper mode but appears when in Ripper mode, you can have it included but not hidden, and then inside the model, only contain meshes of the `ripper` meshgroup.
 
-There are also Includes for `MainWeapon` and `UniqueWeapon`, as well as the arrays for them. As of yet, this functionality has not been added, so it's advised to keep both as false.
-
 ### Extras
 There are also keys named `RipperSize` and `ResetSizeInQTE`, as well as `ResetSizeRate`. When in Ripper mode, the ASI will scale the player according to the value in `RipperSize`, which has a base value of `1.000` (100%), and if `ResetSizeInQTE` is true, then the size of the player will be reset inside any QuickTimeEvents. The reason you would want your characters to have their size reset is because alot of QTEs are utterly borked when the player is of a different scale and this is a fine compromise between consistency and functionality. `ResetSizeRate` has a very small value which refers to the increments that the ASI takes per-update while resizing the player back to its `RipperSize` once a QTE ends. A greater `ResetSizeRate` entails less time to reset back to `RipperSize`, and vice versa.
 
