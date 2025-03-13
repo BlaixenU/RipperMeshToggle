@@ -37,7 +37,7 @@ using json = nlohmann::json;
 namespace fs = std::filesystem;
  
 struct BodyStruct {
-	int targetBody = 0;
+	std::vector<int> targetBody;
 
 	bool toggleInRipper = true;
 
@@ -97,24 +97,6 @@ bool sheathExists = false;
 bool visorExists = false;
 bool headExists = false;
 int callCount = 0;
-
-//class {
-//public:
-//	int callEventSE(const char* se, int a2 = 0)
-//	{
-//		return ((int(__cdecl*)(const char* se, int a2))(shared::base + 0xA5E050))(se, a2);
-//	} //SE Events
-//
-//	static int __cdecl callEventSEATTR(const char* se, void* a2 = 0, int a3 = -1, int a4 = 0)
-//	{
-//		return ((int(_cdecl*)(const char*, void* a2, int a3, int a4))(shared::base + 0xA5E0C0))(se, a2, a3, a4);
-//	} // SE ATTR Events
-//
-//	void __cdecl callEventBGM(const char* event)
-//	{
-//		((void(__cdecl*)(const char*))(shared::base + 0xA5E1B0))(event);
-//	} //BGM Events
-//} eventFunctions;
 
 namespace Wwise {
 	int MGR_PlaySound(const char* se, int a2)
@@ -202,17 +184,6 @@ bool fileExists(const std::string& filename) {
 void dummy() {};
 
 
-bool currentCostumeInJson(int currentPlSkin) {
-
-	for (auto i = 0; i < 12; ++i) {
-		if (Body[i].targetBody == currentPlSkin) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
 inline void updateBodyPart(Behavior* BehaviorPart, Part StructPart, bool inRipperMode) {
 
 	if (inRipperMode) {
@@ -291,7 +262,7 @@ inline void updateBody() {
 
 		if (bVisor) {
 			visorExists = true;
-			if ((currentPhase == 0x750) || (currentPhase == 0x740)) {
+			if ((currentPhase == 0x750) || (currentPhase == 0x740) || (currentPhase == 0x730)) {
 				if (Body[bodyJsonIndex].showVisorAtArmstrong) {
 					updateBodyPart(bVisor, Visor[bodyJsonIndex], inRipperMode);
 				}
@@ -322,10 +293,10 @@ inline void updateBody() {
 
 
 inline void callEvents(std::vector<std::string>& eventList) {
-	for (auto it = eventList.rbegin(); it != eventList.rend(); ++it) {
-		Wwise::MGR_PlaySound(it->c_str(), 0);
-		Wwise::PlaySound(it->c_str(), 0, -1, 0);
-		Wwise::Se_PlayEvent(it->c_str());
+	for (std::string event : eventList) {
+		Wwise::MGR_PlaySound(event.c_str(), 0);
+		Wwise::PlaySound(event.c_str(), 0, -1, 0);
+		Wwise::Se_PlayEvent(event.c_str());
 		callCount += 1;
 	} 
 }
@@ -382,7 +353,11 @@ void mainInit() {
 
 			if (jsonFile.contains(bodyPlusIndexA)) {
 
-				Body[indexA].targetBody = jsonFile[bodyPlusIndexA]["CostumeIndex"];
+				if (jsonFile[bodyPlusIndexA].contains("CostumeIndex")) {
+					for (int i = 0; i < (jsonFile[bodyPlusIndexA]["CostumeIndex"].size()); i++) {
+						Body[indexA].targetBody.push_back(jsonFile[bodyPlusIndexA]["CostumeIndex"][i]);
+					}
+				}
 
 				if (jsonFile[bodyPlusIndexA].contains("ToggleBodyInRipper")) {
 					Body[indexA].toggleInRipper = jsonFile[bodyPlusIndexA]["ToggleBodyInRipper"];
@@ -459,13 +434,20 @@ void ripperInit() {
 
 		int*& currentPlSkin = *(int**)(shared::base + 0x17EA01C);
 
-		for (int index = 0; index < 12; ++index) {
-			if (Body[index].targetBody == *currentPlSkin) {
-				bodyJsonIndex = index;
+		bodyJsonIndex = -1;
+
+		bool indexFound = false;
+
+		for (int bodyIndex = 0; bodyIndex < 12 && !indexFound; ++bodyIndex) {
+			for (auto it = Body[bodyIndex].targetBody.rbegin(); it != Body[bodyIndex].targetBody.rend(); ++it) {
+				if (*it == *currentPlSkin) {
+					bodyJsonIndex = bodyIndex;
+					indexFound = true;
+				}
 			}
 		}
 
-		if (currentCostumeInJson(*currentPlSkin)) {
+		if (bodyJsonIndex > -1) {
 
 			updateBody();
 
@@ -475,7 +457,7 @@ void ripperInit() {
 
 			hasInitialized = true;
 
-			if ((currentPhase == 0x750) || (currentPhase == 0x740)) {
+			if ((currentPhase == 0x750) || (currentPhase == 0x740) || (currentPhase == 0x730)) {
 				remainingUpdates = 5;
 			}
 		}
@@ -498,7 +480,7 @@ void ripperTick() {
 
 		if (hasInitialized) {
 
-			if (*currentPlSkin == Body[bodyJsonIndex].targetBody) {
+			if (bodyJsonIndex > -1) {
 
 				if (player->m_nRipperModeEnabled && !ripperSwitch) {
 

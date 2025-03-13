@@ -53,7 +53,7 @@ void gui::RenderWindow()
 {
 	if (windowOpened && debugMode) {
 
-		ImGui::Begin("Debug - Toggle with L", nullptr, ImGuiWindowFlags_None);
+		ImGui::Begin("Debug - v2.2.0", nullptr, ImGuiWindowFlags_None);
 
 		ImGui::Text("Bodies");
 		ImGui::Separator();
@@ -74,7 +74,7 @@ void gui::RenderWindow()
 							ImGui::Text(it->c_str());
 						}
 						ImGui::Text("\n");
-						ImGui::Text("OnRipperEnter:");
+						ImGui::Text("OnRipperExit:");
 						for (auto it = Events[index].exitEvents.rbegin(); it != Events[index].exitEvents.rend(); ++it) {
 							ImGui::Text(it->c_str());
 						}
@@ -85,7 +85,9 @@ void gui::RenderWindow()
 					ImGui::Text("\n");
 
 					if (ImGui::CollapsingHeader("Body")) {
-						ImGui::Value("ModelIndex", Body[index].targetBody);
+						for (int index : Body[index].targetBody) {
+							ImGui::Value("Costume ID", index);
+						}
 						ImGui::Value("ToggleInRipper", Body[index].toggleInRipper);
 						ImGui::Value("RipperSize", Body[index].resizeFactor);
 						ImGui::Value("ResetSizeInQTE", Body[index].resetSize);

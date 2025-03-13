@@ -3,7 +3,11 @@
 
   "Body0": {
 
-    "CostumeIndex": 69648,
+    "CostumeIndex": [
+      1,
+      69648,
+      2
+    ],
 
     "ShowVisorAtArmstrong": true,
 
