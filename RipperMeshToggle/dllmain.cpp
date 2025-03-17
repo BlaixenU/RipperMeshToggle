@@ -130,18 +130,5 @@ void gui::RenderWindow()
 		if (currentPhase) {
 			ImGui::Value("Current Phase", currentPhase);
 		}
-
-		ImGui::Text("\n");
-		ImGui::Text("Part Existence");
-		ImGui::Text("\n");
-		ImGui::Value("Hair Exists", hairExists);
-		ImGui::Value("Sheath Exists", sheathExists);
-		ImGui::Value("Visor Exists", visorExists);
-		ImGui::Value("Head Exists", headExists);
-		ImGui::Text("\n");
-		ImGui::Value("Event Call Count", callCount);
-
-		ImGui::End();
 	}
-	
 }
