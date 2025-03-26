@@ -33,6 +33,7 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
+#include <shlwapi.h>
 using json = nlohmann::json;
 namespace fs = std::filesystem;
  
@@ -115,7 +116,7 @@ namespace Wwise {
 	} //BGM Events
 }
 
-inline void initializePartByIndex(json jsonFile, std::string part, int index) {
+inline void initializePartByIndex(json jsonFile, std::string part, int index) { // why did i do this?? :sob:
 
 	std::string bodyIndex = "Body" + std::to_string(index);
 
@@ -334,28 +335,28 @@ inline void callEvents(std::vector<std::string>& eventList) {
 
 void mainInit() {
 
-	// frouk sent this code so if i ever forget hopefully this comment will remind me
+	// frouk sent this code so if i ever forget hopefully this comment will remind me // i kinda started understanding it!!!
 
-	char cwd[MAX_PATH];
+	char jsonPath[MAX_PATH];
 	HMODULE hm = NULL;
 	GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&dummy, &hm);
-	GetModuleFileNameA(hm, cwd, sizeof(cwd));
+	GetModuleFileNameA(hm, jsonPath, sizeof(jsonPath));
 
-	char* ptr = strrchr(cwd, '\\'); // remove the executeable name from the path
+	//char* ptr = strrchr(jsonPath, '\\'); // remove the executeable name from the path // by finding & of last '\' in path 
 
-	if (ptr) {
-		*ptr = '\0';
-	}
+	//if (ptr) {
+	//	*ptr = '\0'; // truncate the path at the last '\' character	(ASI filename removed from path, CWD achieved)
+	//}
 
+	PathRemoveExtensionA(jsonPath);
 
-
-	strcat(cwd, "\\RipperMeshToggle.json");
+	strcat(jsonPath, ".json");
 
 	std::fstream jsonStream;
 	json jsonFile;
 
-	if (fileExists(cwd)) {
-		jsonStream.open(cwd);
+	if (fileExists(jsonPath)) {
+		jsonStream.open(jsonPath);
 	}
 
 	if (jsonStream) {
