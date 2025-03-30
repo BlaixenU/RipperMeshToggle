@@ -1,3 +1,4 @@
+#pragma comment(lib, "Shlwapi.lib")
 #include "pch.h"
 #include <assert.h>
 #include "gui.h"
@@ -33,7 +34,7 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
-#include <shlwapi.h>
+#include <Shlwapi.h>
 using json = nlohmann::json;
 namespace fs = std::filesystem;
  
@@ -389,7 +390,7 @@ void mainInit() {
 			if (jsonFile.contains(bodyPlusIndexA)) {
 
 				if (jsonFile[bodyPlusIndexA].contains("CostumeIndex")) {
-					if (jsonFile[bodyPlusIndexA].is_array()) {
+					if (jsonFile[bodyPlusIndexA]["CostumeIndex"].is_array()) {
 						for (int i = 0; i < (jsonFile[bodyPlusIndexA]["CostumeIndex"].size()); i++) {
 							if (jsonFile[bodyPlusIndexA]["CostumeIndex"][i].is_number_integer()) {
 								Body[indexA].targetBody.push_back(jsonFile[bodyPlusIndexA]["CostumeIndex"][i]);

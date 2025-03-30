@@ -1,3 +1,4 @@
+#pragma comment(lib, "Shlwapi.lib")
 #include "pch.h"
 #include <assert.h>
 #include "gui.h"
@@ -53,82 +54,85 @@ void gui::RenderWindow()
 {
 	if (windowOpened && debugMode) {
 
-		ImGui::Begin("Debug - v2.2.0", nullptr, ImGuiWindowFlags_None);
+		if (ImGui::Begin("Debug - v2.2.0", nullptr, ImGuiWindowFlags_None)) {
 
-		ImGui::Text("Bodies");
-		ImGui::Separator();
+			ImGui::Text("Bodies");
+			ImGui::Separator();
 
-		if (ImGui::BeginTabBar("Costumes")) {
-			for (int index = 0; index < 12; index++) {
+			if (ImGui::BeginTabBar("Costumes")) {
+				for (int index = 0; index < 12; index++) {
 
-				std::string bruh = std::to_string(index);
-				const char* bodyIndex = bruh.c_str();
+					std::string bruh = std::to_string(index);
+					const char* bodyIndex = bruh.c_str();
 
-				if (ImGui::BeginTabItem(bodyIndex)) {
+					if (ImGui::BeginTabItem(bodyIndex)) {
 
-					ImGui::Text("\n");
-
-					if (ImGui::CollapsingHeader("Events")) {
-						ImGui::Text("OnRipperEnter:");
-						for (auto it = Events[index].enterEvents.rbegin(); it != Events[index].enterEvents.rend(); ++it) {
-							ImGui::Text(it->c_str());
-						}
 						ImGui::Text("\n");
-						ImGui::Text("OnRipperExit:");
-						for (auto it = Events[index].exitEvents.rbegin(); it != Events[index].exitEvents.rend(); ++it) {
-							ImGui::Text(it->c_str());
+
+						if (ImGui::CollapsingHeader("Events")) {
+							ImGui::Text("OnRipperEnter:");
+							for (auto it = Events[index].enterEvents.rbegin(); it != Events[index].enterEvents.rend(); ++it) {
+								ImGui::Text(it->c_str());
+							}
+							ImGui::Text("\n");
+							ImGui::Text("OnRipperExit:");
+							for (auto it = Events[index].exitEvents.rbegin(); it != Events[index].exitEvents.rend(); ++it) {
+								ImGui::Text(it->c_str());
+							}
 						}
-					}
 
-					ImGui::Text("\n");
-					ImGui::Separator();
-					ImGui::Text("\n");
+						ImGui::Text("\n");
+						ImGui::Separator();
+						ImGui::Text("\n");
 
-					if (ImGui::CollapsingHeader("Body")) {
-						for (int index : Body[index].targetBody) {
-							ImGui::Value("Costume ID", index);
+						if (ImGui::CollapsingHeader("Body")) {
+							for (int index : Body[index].targetBody) {
+								ImGui::Value("Costume ID", index);
+							}
+							ImGui::Value("ToggleInRipper", Body[index].toggleInRipper);
+							ImGui::Value("RipperSize", Body[index].resizeFactor);
+							ImGui::Value("ResetSizeInQTE", Body[index].resetSize);
+							ImGui::Value("ResetSizeRate", Body[index].resetSizeRate);
+							ImGui::Value("ShowVisorAtArmstrong", Body[index].showVisorAtArmstrong);
 						}
-						ImGui::Value("ToggleInRipper", Body[index].toggleInRipper);
-						ImGui::Value("RipperSize", Body[index].resizeFactor);
-						ImGui::Value("ResetSizeInQTE", Body[index].resetSize);
-						ImGui::Value("ResetSizeRate", Body[index].resetSizeRate);
-						ImGui::Value("ShowVisorAtArmstrong", Body[index].showVisorAtArmstrong);
-					}
 
-					ImGui::Separator();
-					ImGui::Text("\n");
-
-					renderPart(Hair[index], "Hair");
-					renderPart(Sheath[index], "Sheath");
-
-					if (ImGui::CollapsingHeader("Visor")) {
-
-						ImGui::Value("ToggleInRipper", Visor[index].toggleInRipper);
-						ImGui::Value("HideInNormal", Visor[index].hideInNormal);
-						ImGui::Value("HideInRipper", Visor[index].hideInRipper);
+						ImGui::Separator();
 						ImGui::Text("\n");
-						ImGui::Value("VisorEnabledInRipper", Visor[index].visorEnabledInRipper);
-						ImGui::Value("VisorEnabledInNormal", Visor[index].visorEnabledInNormal);
-						ImGui::Text("\n");
+
+						renderPart(Hair[index], "Hair");
+						renderPart(Sheath[index], "Sheath");
+
+						if (ImGui::CollapsingHeader("Visor")) {
+
+							ImGui::Value("ToggleInRipper", Visor[index].toggleInRipper);
+							ImGui::Value("HideInNormal", Visor[index].hideInNormal);
+							ImGui::Value("HideInRipper", Visor[index].hideInRipper);
+							ImGui::Text("\n");
+							ImGui::Value("VisorEnabledInRipper", Visor[index].visorEnabledInRipper);
+							ImGui::Value("VisorEnabledInNormal", Visor[index].visorEnabledInNormal);
+							ImGui::Text("\n");
+						}
+
+						renderPart(Head[index], "Head");
+
+						ImGui::EndTabItem();
 					}
-
-					renderPart(Head[index], "Head");
-
-					ImGui::EndTabItem();
 				}
+				ImGui::EndTabBar();
 			}
-			ImGui::EndTabBar();
-		}
 
-		ImGui::Text("\n");
-		ImGui::Separator();
-		ImGui::Text("\n");
+			ImGui::Text("\n");
+			ImGui::Separator();
+			ImGui::Text("\n");
 
-		if (pCurrentCostume) {
-			ImGui::Value("Current Costume ID", **pCurrentCostume);
-		}
-		if (currentPhase) {
-			ImGui::Value("Current Phase", currentPhase);
+			if (pCurrentCostume) {
+				ImGui::Value("Current Costume ID", **pCurrentCostume);
+			}
+			if (currentPhase) {
+				ImGui::Value("Current Phase", currentPhase);
+			}
+
+			ImGui::End();
 		}
 	}
 }
