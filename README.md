@@ -2,7 +2,18 @@
 ASI mod for Metal Gear Rising: Revengeance that enables modders to create dynamically appearing parts of their player mods depending on if the player is in Ripper mode or not. Not only that, but it comes with more functionality like player size, bodypart (sheath, visor, hair, etc) settings, and also multiple body support.
 
 > [!IMPORTANT]
-> If used in a mod, **do NOT rename the ASI file**, and be sure to **link this repository in any release** of the mod, public or not.
+> If used in a mod, **be sure to rename the ASI and JSON files to a unique name (predictably your mod's name) and keep the name the same for both files (MyMod.asi, MyMod.json, etc.)**, and be sure to **link this repository in any release and credit me (BlaixenU)** of the mod, public or not. For public mods in particular, please also link my Nexus Mods profile (https://next.nexusmods.com/profile/BlaixenU)
+
+# Table Of Contents
+- Installation
+- Setting Up Model
+- Setting Up JSON
+  - General Structure
+  - Listing Target Bodies (CostumeIndex)
+  - Body Parts
+  - RipperSize
+  - WwiseEvents
+  - Extra Fields
 
 # Usage
 
