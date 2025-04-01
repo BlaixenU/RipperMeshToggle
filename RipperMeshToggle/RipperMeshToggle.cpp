@@ -38,7 +38,24 @@
 using json = nlohmann::json;
 namespace fs = std::filesystem;
  
-struct BodyStruct {
+
+struct EventsStruct { // Events Structure. Mirrors the "Events" object in the JSON file.
+	std::vector<std::string> exitEvents;
+	std::vector<std::string> enterEvents;
+};
+
+struct PartStruct { // Generic Part Structure. Mirrors the "Hair", "Sheath", and "Head" objects in the JSON file.
+	bool toggleInRipper = false;
+	bool hideInNormal = false;
+	bool hideInRipper = false;
+};
+
+struct VisorStruct : PartStruct { // Visor Structure. Mirrors the "Visor" object in the JSON file.
+	bool visorEnabledInRipper = false;
+	bool visorEnabledInNormal = false;
+};
+
+struct BodyStruct { // Body Structure. Mirrors the "Body" object in the JSON file.
 	std::vector<int> targetBody;
 
 	bool toggleInRipper = true;
@@ -48,34 +65,17 @@ struct BodyStruct {
 	float resetSizeRate = 0.01f;
 
 	bool showVisorAtArmstrong = false;
+
+	PartStruct Hair;
+	PartStruct Sheath;
+	VisorStruct Visor;
+	PartStruct Head;
+
+	EventsStruct Events;
 };
 
-struct EventsStruct {
-	std::vector<std::string> exitEvents;
-	std::vector<std::string> enterEvents;
-} Events[12];
+std::vector<BodyStruct> Body;
 
-struct Part {
-	bool toggleInRipper = false;
-	bool hideInNormal = false;
-	bool hideInRipper = false;
-};
-
-struct VisorPart : Part {
-	bool visorEnabledInRipper = false;
-	bool visorEnabledInNormal = false;
-};
-
-BodyStruct Body[12];
-
-Part Hair[12];
-Part Sheath[12];
-VisorPart Visor[12];
-Part Head[12];
-
-int MainWeaponIndex[8][12];
-
-int UniqueWeaponIndex[3][12];
 
 
 int bodyCount;
@@ -126,79 +126,79 @@ inline void initializePartByIndex(json jsonFile, std::string part, int index) { 
 			if (part == "Hair") {
 				if (jsonFile[bodyIndex]["Hair"].contains("ToggleInRipper")) {
 					if (jsonFile[bodyIndex]["Hair"]["ToggleInRipper"].is_boolean()) {
-						Hair[index].toggleInRipper = jsonFile[bodyIndex]["Hair"]["ToggleInRipper"];
+						Body[index].Hair.toggleInRipper = jsonFile[bodyIndex]["Hair"]["ToggleInRipper"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Hair"].contains("HideInNormal")) {
 					if (jsonFile[bodyIndex]["Hair"]["HideInNormal"].is_boolean()) {
-						Hair[index].hideInNormal = jsonFile[bodyIndex]["Hair"]["HideInNormal"];
+						Body[index].Hair.hideInNormal = jsonFile[bodyIndex]["Hair"]["HideInNormal"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Hair"].contains("HideInRipper")) {
 					if (jsonFile[bodyIndex]["Hair"]["HideInRipper"].is_boolean()) {
-						Hair[index].hideInRipper = jsonFile[bodyIndex]["Hair"]["HideInRipper"];
+						Body[index].Hair.hideInRipper = jsonFile[bodyIndex]["Hair"]["HideInRipper"];
 					}
 				}
 			}
 			else if (part == "Sheath") {
 				if (jsonFile[bodyIndex]["Sheath"].contains("ToggleInRipper")) {
 					if (jsonFile[bodyIndex]["Sheath"]["ToggleInRipper"].is_boolean()) {
-						Sheath[index].toggleInRipper = jsonFile[bodyIndex]["Sheath"]["ToggleInRipper"];
+						Body[index].Sheath.toggleInRipper = jsonFile[bodyIndex]["Sheath"]["ToggleInRipper"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Sheath"].contains("HideInNormal")) {
 					if (jsonFile[bodyIndex]["Sheath"]["HideInNormal"].is_boolean()) {
-						Sheath[index].hideInNormal = jsonFile[bodyIndex]["Sheath"]["HideInNormal"];
+						Body[index].Sheath.hideInNormal = jsonFile[bodyIndex]["Sheath"]["HideInNormal"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Sheath"].contains("HideInRipper")) {
 					if (jsonFile[bodyIndex]["Sheath"]["HideInRipper"].is_boolean()) {
-						Sheath[index].hideInRipper = jsonFile[bodyIndex]["Sheath"]["HideInRipper"];
+						Body[index].Sheath.hideInRipper = jsonFile[bodyIndex]["Sheath"]["HideInRipper"];
 					}
 				}
 			}
 			else if (part == "Visor") {
 				if (jsonFile[bodyIndex]["Visor"].contains("ToggleInRipper")) {
 					if (jsonFile[bodyIndex]["Visor"]["ToggleInRipper"].is_boolean()) {
-						Visor[index].toggleInRipper = jsonFile[bodyIndex]["Visor"]["ToggleInRipper"];
+						Body[index].Visor.toggleInRipper = jsonFile[bodyIndex]["Visor"]["ToggleInRipper"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Visor"].contains("HideInNormal")) {
 					if (jsonFile[bodyIndex]["Visor"]["HideInNormal"].is_boolean()) {
-						Visor[index].hideInNormal = jsonFile[bodyIndex]["Visor"]["HideInNormal"];
+						Body[index].Visor.hideInNormal = jsonFile[bodyIndex]["Visor"]["HideInNormal"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Visor"].contains("HideInRipper")) {
 					if (jsonFile[bodyIndex]["Visor"]["HideInRipper"].is_boolean()) {
-						Visor[index].hideInRipper = jsonFile[bodyIndex]["Visor"]["HideInRipper"];
+						Body[index].Visor.hideInRipper = jsonFile[bodyIndex]["Visor"]["HideInRipper"];
 					}
 				}
 
 				if (jsonFile[bodyIndex]["Visor"].contains("VisorForceEnabledInRipper")) {
 					if (jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInRipper"].is_boolean()) {
-						Visor[index].visorEnabledInRipper = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInRipper"];
+						Body[index].Visor.visorEnabledInRipper = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInRipper"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Visor"].contains("VisorForceEnabledInNormal")) {
 					if (jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInNormal"].is_boolean()) {
-						Visor[index].visorEnabledInNormal = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInNormal"];
+						Body[index].Visor.visorEnabledInNormal = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInNormal"];
 					}
 				}
 			}
 			else if (part == "Head") {
 				if (jsonFile[bodyIndex]["Head"].contains("ToggleInRipper")) {
 					if (jsonFile[bodyIndex]["Head"]["ToggleInRipper"].is_boolean()) {
-						Head[index].toggleInRipper = jsonFile[bodyIndex]["Head"]["ToggleInRipper"];
+						Body[index].Head.toggleInRipper = jsonFile[bodyIndex]["Head"]["ToggleInRipper"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Head"].contains("HideInNormal")) {
 					if (jsonFile[bodyIndex]["Head"]["HideInNormal"].is_boolean()) {
-						Head[index].hideInNormal = jsonFile[bodyIndex]["Head"]["HideInNormal"];
+						Body[index].Head.hideInNormal = jsonFile[bodyIndex]["Head"]["HideInNormal"];
 					}
 				}
 				if (jsonFile[bodyIndex]["Head"].contains("HideInRipper")) {
 					if (jsonFile[bodyIndex]["Head"]["HideInRipper"].is_boolean()) {
-						Head[index].hideInRipper = jsonFile[bodyIndex]["Head"]["HideInRipper"];
+						Body[index].Head.hideInRipper = jsonFile[bodyIndex]["Head"]["HideInRipper"];
 					}
 				}
 			}
@@ -216,7 +216,7 @@ bool fileExists(const std::string& filename) {
 void dummy() {};
 
 
-inline void updateBodyPart(Behavior* BehaviorPart, Part StructPart, bool inRipperMode) {
+inline void updateBodyPart(Behavior* BehaviorPart, PartStruct StructPart, bool inRipperMode) {
 
 	if (inRipperMode) {
 		if (StructPart.hideInRipper) {
@@ -283,12 +283,12 @@ inline void updateBody() {
 
 
 		if (bHair) {
-			updateBodyPart(bHair, Hair[bodyJsonIndex], inRipperMode);
+			updateBodyPart(bHair, Body[bodyJsonIndex].Hair, inRipperMode);
 			hairExists = true;
 		}
 
 		if (bSheath) {
-			updateBodyPart(bSheath, Sheath[bodyJsonIndex], inRipperMode);
+			updateBodyPart(bSheath, Body[bodyJsonIndex].Sheath, inRipperMode);
 			sheathExists = true;
 		}
 
@@ -296,28 +296,28 @@ inline void updateBody() {
 			visorExists = true;
 			if ((currentPhase == 0x750) || (currentPhase == 0x740) || (currentPhase == 0x730)) {
 				if (Body[bodyJsonIndex].showVisorAtArmstrong) {
-					updateBodyPart(bVisor, Visor[bodyJsonIndex], inRipperMode);
+					updateBodyPart(bVisor, Body[bodyJsonIndex].Visor, inRipperMode);
 				}
 				else {
 					bVisor->disableRender();
 				}
 			}
 			else {
-				updateBodyPart(bVisor, Visor[bodyJsonIndex], inRipperMode);
+				updateBodyPart(bVisor, Body[bodyJsonIndex].Visor, inRipperMode);
 			}
 
 			if (!inRipperMode) {
-				Visor[bodyJsonIndex].visorEnabledInNormal ? Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 1
+				Body[bodyJsonIndex].Visor.visorEnabledInNormal ? Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 1
 					: Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 0;
 			}
 			else {
-				Visor[bodyJsonIndex].visorEnabledInRipper ? Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 1
+				Body[bodyJsonIndex].Visor.visorEnabledInRipper ? Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 1
 					: Trigger::GameFlags.GAME_PLAYER_VISOR_ENABLED = 0;
 			}
 		}
 
 		if (bHead) {
-			updateBodyPart(bHead, Head[bodyJsonIndex], inRipperMode);
+			updateBodyPart(bHead, Body[bodyJsonIndex].Head, inRipperMode);
 			headExists = true;
 		}
 	}
@@ -389,6 +389,8 @@ void mainInit() {
 
 			if (jsonFile.contains(bodyPlusIndexA)) {
 
+				Body.resize(Body.size() + 1);
+
 				if (jsonFile[bodyPlusIndexA].contains("CostumeIndex")) {
 					if (jsonFile[bodyPlusIndexA]["CostumeIndex"].is_array()) {
 						for (int i = 0; i < (jsonFile[bodyPlusIndexA]["CostumeIndex"].size()); i++) {
@@ -433,7 +435,7 @@ void mainInit() {
 							if (jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperEnter"].is_array()) {
 								for (int i = 0; i < (jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperEnter"].size()); i++) {
 									if (jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperEnter"][i].is_string()) {
-										Events[indexA].enterEvents.push_back(jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperEnter"][i]);
+										Body[indexA].Events.enterEvents.push_back(jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperEnter"][i]);
 									}
 								}
 							}
@@ -442,7 +444,7 @@ void mainInit() {
 							if (jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperExit"].is_array()) {
 								for (int i = 0; i < (jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperExit"].size()); i++) {
 									if (jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperExit"][i].is_string()) {
-										Events[indexA].exitEvents.push_back(jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperExit"][i]);
+										Body[indexA].Events.exitEvents.push_back(jsonFile[bodyPlusIndexA]["WwiseEvents"]["OnRipperExit"][i]);
 									}
 								}
 							}
@@ -450,11 +452,103 @@ void mainInit() {
 					}
 				}
 
-				initializePartByIndex(jsonFile, "Hair", indexA);
+				/*initializePartByIndex(jsonFile, "Hair", indexA);
 				initializePartByIndex(jsonFile, "Sheath", indexA);
 				initializePartByIndex(jsonFile, "Visor", indexA);
-				initializePartByIndex(jsonFile, "Head", indexA);
+				initializePartByIndex(jsonFile, "Head", indexA);*/
 
+
+				if (jsonFile[bodyPlusIndexA].contains("Hair")) {
+					if (jsonFile[bodyPlusIndexA]["Hair"].is_object()) {
+						if (jsonFile[bodyPlusIndexA]["Hair"].contains("ToggleInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Hair"]["ToggleInRipper"].is_boolean()) {
+								Body[indexA].Hair.toggleInRipper = jsonFile[bodyPlusIndexA]["Hair"]["ToggleInRipper"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Hair"].contains("HideInNormal")) {
+							if (jsonFile[bodyPlusIndexA]["Hair"]["HideInNormal"].is_boolean()) {
+								Body[indexA].Hair.hideInNormal = jsonFile[bodyPlusIndexA]["Hair"]["HideInNormal"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Hair"].contains("HideInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Hair"]["HideInRipper"].is_boolean()) {
+								Body[indexA].Hair.hideInRipper = jsonFile[bodyPlusIndexA]["Hair"]["HideInRipper"];
+							}
+						}
+					}
+				}
+
+				if (jsonFile[bodyPlusIndexA].contains("Sheath")) {
+					if (jsonFile[bodyPlusIndexA]["Sheath"].is_object()) {
+						if (jsonFile[bodyPlusIndexA]["Sheath"].contains("ToggleInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Sheath"]["ToggleInRipper"].is_boolean()) {
+								Body[indexA].Sheath.toggleInRipper = jsonFile[bodyPlusIndexA]["Sheath"]["ToggleInRipper"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Sheath"].contains("HideInNormal")) {
+							if (jsonFile[bodyPlusIndexA]["Sheath"]["HideInNormal"].is_boolean()) {
+								Body[indexA].Sheath.hideInNormal = jsonFile[bodyPlusIndexA]["Sheath"]["HideInNormal"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Sheath"].contains("HideInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Sheath"]["HideInRipper"].is_boolean()) {
+								Body[indexA].Sheath.hideInRipper = jsonFile[bodyPlusIndexA]["Sheath"]["HideInRipper"];
+							}
+						}
+					}
+				}
+
+				if (jsonFile[bodyPlusIndexA].contains("Visor")) {
+					if (jsonFile[bodyPlusIndexA]["Visor"].is_object()) {
+						if (jsonFile[bodyPlusIndexA]["Visor"].contains("ToggleInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Visor"]["ToggleInRipper"].is_boolean()) {
+								Body[indexA].Visor.toggleInRipper = jsonFile[bodyPlusIndexA]["Visor"]["ToggleInRipper"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Visor"].contains("HideInNormal")) {
+							if (jsonFile[bodyPlusIndexA]["Visor"]["HideInNormal"].is_boolean()) {
+								Body[indexA].Visor.hideInNormal = jsonFile[bodyPlusIndexA]["Visor"]["HideInNormal"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Visor"].contains("HideInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Visor"]["HideInRipper"].is_boolean()) {
+								Body[indexA].Visor.hideInRipper = jsonFile[bodyPlusIndexA]["Visor"]["HideInRipper"];
+							}
+						}
+
+						if (jsonFile[bodyPlusIndexA]["Visor"].contains("VisorForceEnabledInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Visor"]["VisorForceEnabledInRipper"].is_boolean()) {
+								Body[indexA].Visor.visorEnabledInRipper = jsonFile[bodyPlusIndexA]["Visor"]["VisorForceEnabledInRipper"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Visor"].contains("VisorForceEnabledInNormal")) {
+							if (jsonFile[bodyPlusIndexA]["Visor"]["VisorForceEnabledInNormal"].is_boolean()) {
+								Body[indexA].Visor.visorEnabledInNormal = jsonFile[bodyPlusIndexA]["Visor"]["VisorForceEnabledInNormal"];
+							}
+						}
+					}
+				}
+
+				if (jsonFile[bodyPlusIndexA].contains("Head")) {
+					if (jsonFile[bodyPlusIndexA]["Head"].is_object()) {
+						if (jsonFile[bodyPlusIndexA]["Head"].contains("ToggleInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Head"]["ToggleInRipper"].is_boolean()) {
+								Body[indexA].Head.toggleInRipper = jsonFile[bodyPlusIndexA]["Head"]["ToggleInRipper"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Head"].contains("HideInNormal")) {
+							if (jsonFile[bodyPlusIndexA]["Head"]["HideInNormal"].is_boolean()) {
+								Body[indexA].Head.hideInNormal = jsonFile[bodyPlusIndexA]["Head"]["HideInNormal"];
+							}
+						}
+						if (jsonFile[bodyPlusIndexA]["Head"].contains("HideInRipper")) {
+							if (jsonFile[bodyPlusIndexA]["Head"]["HideInRipper"].is_boolean()) {
+								Body[indexA].Head.hideInRipper = jsonFile[bodyPlusIndexA]["Head"]["HideInRipper"];
+							}
+						}
+					}
+				}
+				
 
 
 				/*for (indexB = 0; indexB < jsonFile[bodyPlusIndexA]["MainWeaponIndex"].size(); ++indexB) {
@@ -470,6 +564,7 @@ void mainInit() {
 		jsonStream.close();
 	}
 }
+
 
 
 void ripperInit() {
@@ -548,7 +643,7 @@ void ripperTick() {
 
 					updateBody();
 
-					callEvents(Events[bodyJsonIndex].enterEvents);
+					callEvents(Body[bodyJsonIndex].Events.enterEvents);
 
 					player->setSize({ Body[bodyJsonIndex].resizeFactor, Body[bodyJsonIndex].resizeFactor, Body[bodyJsonIndex].resizeFactor, 1.0f});
 				}
@@ -558,7 +653,7 @@ void ripperTick() {
 
 						updateBody();
 
-						callEvents(Events[bodyJsonIndex].exitEvents);
+						callEvents(Body[bodyJsonIndex].Events.exitEvents);
 
 						player->setSize({ 1.0f, 1.0f, 1.0f, 1.0f });
 

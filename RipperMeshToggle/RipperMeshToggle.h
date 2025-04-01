@@ -1,51 +1,49 @@
 #pragma once
 #include <string>
+#include <vector>
 
 extern void mainInit();
 extern void ripperInit();
 extern void ripperTick();
 extern void ripperReinit();
 
-struct BodyStruct {
-	std::vector<int> targetBody;
-
-	bool toggleInRipper = true;
-
-	float resizeFactor = 1.f;
-	bool resetSize = false;
-	float resetSizeRate = 0.01f;
-
-	bool showVisorAtArmstrong = false;
-};
-
-struct EventsStruct {
+struct EventsStruct { // Events Structure. Mirrors the "Events" object in the JSON file.
 	std::vector<std::string> exitEvents;
 	std::vector<std::string> enterEvents;
 };
 
-extern EventsStruct Events[12];
-
-struct Part {
-	bool toggleInRipper = false;
-	bool hideInNormal = false;
-	bool hideInRipper = false;
+struct PartStruct { // Generic Part Structure. Mirrors the "Hair", "Sheath", and "Head" objects in the JSON file.
+	bool toggleInRipper;
+	bool hideInNormal;
+	bool hideInRipper;
 };
 
-struct VisorPart : Part {
-	bool visorEnabledInRipper = false;
-	bool visorEnabledInNormal = false;
+struct VisorStruct : PartStruct { // Visor Structure. Mirrors the "Visor" object in the JSON file.
+	bool visorEnabledInRipper;
+	bool visorEnabledInNormal;
 };
 
-extern BodyStruct Body[12];
+struct BodyStruct { // Body Structure. Mirrors the "Body" object in the JSON file.
+	std::vector<int> targetBody;
 
-extern Part Hair[12];
-extern Part Sheath[12];
-extern VisorPart Visor[12];
-extern Part Head[12];
+	bool toggleInRipper;
 
-extern int MainWeaponIndex[8][12];
+	float resizeFactor;
+	bool resetSize;
+	float resetSizeRate;
 
-extern int UniqueWeaponIndex[3][12];
+	bool showVisorAtArmstrong;
+
+	PartStruct Hair;
+	PartStruct Sheath;
+	VisorStruct Visor;
+	PartStruct Head;
+
+	EventsStruct Events;
+};
+
+extern std::vector<BodyStruct> Body;
+
 
 
 extern int bodyCount;
