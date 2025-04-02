@@ -17,13 +17,66 @@
         "core_se_eng_spout_medium"
       ],
       "OnRipperExit": [
-        
+
       ]
     },
 
     "ToggleBodyInRipper": true,
 
     "RipperSize": 1.25,
+    "ResetSizeInQTE": true,
+    "ResetSizeRate": 0.01,
+
+    "Hair": {
+      "ToggleInRipper": false,
+      "HideInNormal": false,
+      "HideInRipper": true
+    },
+
+    "Sheath": {
+      "ToggleInRipper": false,
+      "HideInNormal": false,
+      "HideInRipper": true
+    },
+
+    "Visor": {
+      "ToggleInRipper": false,
+      "HideInNormal": false,
+      "HideInRipper": true,
+      "VisorForceEnabledInRipper": false,
+      "VisorForceEnabledInNormal": false
+    },
+
+    "Head": {
+      "ToggleInRipper": false,
+      "HideInNormal": false,
+      "HideInRipper": true
+    }
+  },
+  "Body1": {
+
+    "CostumeIndex": [
+      3,
+      343434,
+      9090009090
+    ],
+
+    "ShowVisorAtArmstrong": true,
+
+    "WwiseEvents": {
+      "OnRipperEnter": [
+        "core_se_btl_datsu_crush",
+        "core_se_eng_spout_medium"
+      ],
+      "OnRipperExit": [
+        "a",
+        "b"
+      ]
+    },
+
+    "ToggleBodyInRipper": true,
+
+    "RipperSize": 3,
     "ResetSizeInQTE": true,
     "ResetSizeRate": 0.01,
 

@@ -117,94 +117,95 @@ namespace Wwise {
 	} //BGM Events
 }
 
-inline void initializePartByIndex(json jsonFile, std::string part, int index) { // why did i do this?? :sob:
 
-	std::string bodyIndex = "Body" + std::to_string(index);
-
-	if (jsonFile[bodyIndex].contains(part)) {
-		if (jsonFile[bodyIndex][part].is_object()) {
-			if (part == "Hair") {
-				if (jsonFile[bodyIndex]["Hair"].contains("ToggleInRipper")) {
-					if (jsonFile[bodyIndex]["Hair"]["ToggleInRipper"].is_boolean()) {
-						Body[index].Hair.toggleInRipper = jsonFile[bodyIndex]["Hair"]["ToggleInRipper"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Hair"].contains("HideInNormal")) {
-					if (jsonFile[bodyIndex]["Hair"]["HideInNormal"].is_boolean()) {
-						Body[index].Hair.hideInNormal = jsonFile[bodyIndex]["Hair"]["HideInNormal"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Hair"].contains("HideInRipper")) {
-					if (jsonFile[bodyIndex]["Hair"]["HideInRipper"].is_boolean()) {
-						Body[index].Hair.hideInRipper = jsonFile[bodyIndex]["Hair"]["HideInRipper"];
-					}
-				}
-			}
-			else if (part == "Sheath") {
-				if (jsonFile[bodyIndex]["Sheath"].contains("ToggleInRipper")) {
-					if (jsonFile[bodyIndex]["Sheath"]["ToggleInRipper"].is_boolean()) {
-						Body[index].Sheath.toggleInRipper = jsonFile[bodyIndex]["Sheath"]["ToggleInRipper"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Sheath"].contains("HideInNormal")) {
-					if (jsonFile[bodyIndex]["Sheath"]["HideInNormal"].is_boolean()) {
-						Body[index].Sheath.hideInNormal = jsonFile[bodyIndex]["Sheath"]["HideInNormal"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Sheath"].contains("HideInRipper")) {
-					if (jsonFile[bodyIndex]["Sheath"]["HideInRipper"].is_boolean()) {
-						Body[index].Sheath.hideInRipper = jsonFile[bodyIndex]["Sheath"]["HideInRipper"];
-					}
-				}
-			}
-			else if (part == "Visor") {
-				if (jsonFile[bodyIndex]["Visor"].contains("ToggleInRipper")) {
-					if (jsonFile[bodyIndex]["Visor"]["ToggleInRipper"].is_boolean()) {
-						Body[index].Visor.toggleInRipper = jsonFile[bodyIndex]["Visor"]["ToggleInRipper"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Visor"].contains("HideInNormal")) {
-					if (jsonFile[bodyIndex]["Visor"]["HideInNormal"].is_boolean()) {
-						Body[index].Visor.hideInNormal = jsonFile[bodyIndex]["Visor"]["HideInNormal"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Visor"].contains("HideInRipper")) {
-					if (jsonFile[bodyIndex]["Visor"]["HideInRipper"].is_boolean()) {
-						Body[index].Visor.hideInRipper = jsonFile[bodyIndex]["Visor"]["HideInRipper"];
-					}
-				}
-
-				if (jsonFile[bodyIndex]["Visor"].contains("VisorForceEnabledInRipper")) {
-					if (jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInRipper"].is_boolean()) {
-						Body[index].Visor.visorEnabledInRipper = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInRipper"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Visor"].contains("VisorForceEnabledInNormal")) {
-					if (jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInNormal"].is_boolean()) {
-						Body[index].Visor.visorEnabledInNormal = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInNormal"];
-					}
-				}
-			}
-			else if (part == "Head") {
-				if (jsonFile[bodyIndex]["Head"].contains("ToggleInRipper")) {
-					if (jsonFile[bodyIndex]["Head"]["ToggleInRipper"].is_boolean()) {
-						Body[index].Head.toggleInRipper = jsonFile[bodyIndex]["Head"]["ToggleInRipper"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Head"].contains("HideInNormal")) {
-					if (jsonFile[bodyIndex]["Head"]["HideInNormal"].is_boolean()) {
-						Body[index].Head.hideInNormal = jsonFile[bodyIndex]["Head"]["HideInNormal"];
-					}
-				}
-				if (jsonFile[bodyIndex]["Head"].contains("HideInRipper")) {
-					if (jsonFile[bodyIndex]["Head"]["HideInRipper"].is_boolean()) {
-						Body[index].Head.hideInRipper = jsonFile[bodyIndex]["Head"]["HideInRipper"];
-					}
-				}
-			}
-		}
-	}
-}
+//inline void initializePartByIndex(json jsonFile, std::string part, int index) { // why did i do this?? :sob:
+//
+//	std::string bodyIndex = "Body" + std::to_string(index);
+//
+//	if (jsonFile[bodyIndex].contains(part)) {
+//		if (jsonFile[bodyIndex][part].is_object()) {
+//			if (part == "Hair") {
+//				if (jsonFile[bodyIndex]["Hair"].contains("ToggleInRipper")) {
+//					if (jsonFile[bodyIndex]["Hair"]["ToggleInRipper"].is_boolean()) {
+//						Body[index].Hair.toggleInRipper = jsonFile[bodyIndex]["Hair"]["ToggleInRipper"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Hair"].contains("HideInNormal")) {
+//					if (jsonFile[bodyIndex]["Hair"]["HideInNormal"].is_boolean()) {
+//						Body[index].Hair.hideInNormal = jsonFile[bodyIndex]["Hair"]["HideInNormal"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Hair"].contains("HideInRipper")) {
+//					if (jsonFile[bodyIndex]["Hair"]["HideInRipper"].is_boolean()) {
+//						Body[index].Hair.hideInRipper = jsonFile[bodyIndex]["Hair"]["HideInRipper"];
+//					}
+//				}
+//			}
+//			else if (part == "Sheath") {
+//				if (jsonFile[bodyIndex]["Sheath"].contains("ToggleInRipper")) {
+//					if (jsonFile[bodyIndex]["Sheath"]["ToggleInRipper"].is_boolean()) {
+//						Body[index].Sheath.toggleInRipper = jsonFile[bodyIndex]["Sheath"]["ToggleInRipper"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Sheath"].contains("HideInNormal")) {
+//					if (jsonFile[bodyIndex]["Sheath"]["HideInNormal"].is_boolean()) {
+//						Body[index].Sheath.hideInNormal = jsonFile[bodyIndex]["Sheath"]["HideInNormal"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Sheath"].contains("HideInRipper")) {
+//					if (jsonFile[bodyIndex]["Sheath"]["HideInRipper"].is_boolean()) {
+//						Body[index].Sheath.hideInRipper = jsonFile[bodyIndex]["Sheath"]["HideInRipper"];
+//					}
+//				}
+//			}
+//			else if (part == "Visor") {
+//				if (jsonFile[bodyIndex]["Visor"].contains("ToggleInRipper")) {
+//					if (jsonFile[bodyIndex]["Visor"]["ToggleInRipper"].is_boolean()) {
+//						Body[index].Visor.toggleInRipper = jsonFile[bodyIndex]["Visor"]["ToggleInRipper"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Visor"].contains("HideInNormal")) {
+//					if (jsonFile[bodyIndex]["Visor"]["HideInNormal"].is_boolean()) {
+//						Body[index].Visor.hideInNormal = jsonFile[bodyIndex]["Visor"]["HideInNormal"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Visor"].contains("HideInRipper")) {
+//					if (jsonFile[bodyIndex]["Visor"]["HideInRipper"].is_boolean()) {
+//						Body[index].Visor.hideInRipper = jsonFile[bodyIndex]["Visor"]["HideInRipper"];
+//					}
+//				}
+//
+//				if (jsonFile[bodyIndex]["Visor"].contains("VisorForceEnabledInRipper")) {
+//					if (jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInRipper"].is_boolean()) {
+//						Body[index].Visor.visorEnabledInRipper = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInRipper"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Visor"].contains("VisorForceEnabledInNormal")) {
+//					if (jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInNormal"].is_boolean()) {
+//						Body[index].Visor.visorEnabledInNormal = jsonFile[bodyIndex]["Visor"]["VisorForceEnabledInNormal"];
+//					}
+//				}
+//			}
+//			else if (part == "Head") {
+//				if (jsonFile[bodyIndex]["Head"].contains("ToggleInRipper")) {
+//					if (jsonFile[bodyIndex]["Head"]["ToggleInRipper"].is_boolean()) {
+//						Body[index].Head.toggleInRipper = jsonFile[bodyIndex]["Head"]["ToggleInRipper"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Head"].contains("HideInNormal")) {
+//					if (jsonFile[bodyIndex]["Head"]["HideInNormal"].is_boolean()) {
+//						Body[index].Head.hideInNormal = jsonFile[bodyIndex]["Head"]["HideInNormal"];
+//					}
+//				}
+//				if (jsonFile[bodyIndex]["Head"].contains("HideInRipper")) {
+//					if (jsonFile[bodyIndex]["Head"]["HideInRipper"].is_boolean()) {
+//						Body[index].Head.hideInRipper = jsonFile[bodyIndex]["Head"]["HideInRipper"];
+//					}
+//				}
+//			}
+//		}
+//	}
+//}
 
 
 bool fileExists(const std::string& filename) {
